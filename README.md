@@ -1,136 +1,107 @@
-# ♻ BetterAmongUs ♻
+# GreaterAmongUs
 
-A client-sided mod that enhances the experience for the popular game Among Us!
+> ## ⚠ Steam version of Among Us ONLY
+>
+> This build is compiled against the **Steam** version of Among Us. It will
+> **not work** on Epic Games, Microsoft Store, itch.io, or any other
+> distribution because the per-platform game libraries (`GameAssembly.dll`
+> and the IL2CPP interop assemblies) differ.
+>
+> If you're not on Steam, **do not download** — the DLL will fail to load and
+> the mod will do nothing. A separate Epic / MS Store build would require
+> rebuilding against those platforms' game libraries; this fork does not
+> ship one.
 
-<img width="700" height="500" alt="BetterAmongUs-Logo" src="/assets/BetterAmongUs-Logo.png" />
+A client-sided anti-cheat / quality-of-life mod for Among Us, currently
+targeting **AU v17.3s (2026.3.31)** on **Steam**.
 
-</p>
-<p align="center">
+This project is a **fork of [BetterAmongUs](https://github.com/D1GQ/BetterAmongUs)
+by D1GQ**, distributed under the **GNU General Public License v3.0** in
+accordance with the upstream license. See `LICENSE` for the full text.
 
-<div style="text-align: center;">
-    <a href="https://discord.gg/vjYrXpzNAn" target="_blank">
-        <img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6" width="200" height="50"/>
-    </a>
-</div>
+## What's different from upstream BetterAmongUs
+
+- **AU v17.3s compatibility** — version array, build references, and
+  Harmony bindings updated for current Among Us.
+- **Vanilla-server safety** — the BAU custom-RPC handshake and per-target
+  role-desync are gated off on official Innersloth servers. Both
+  patterns trigger Innersloth's 2026.x anti-abuse system and result in
+  the host getting banned from their own lobby; this fork avoids that.
+- **No auto-kick / no auto-ban** — `AmongUsClient.KickPlayer` calls are
+  commented out in the BAU `Kick` helper. Cheaters are still detected
+  and logged; the host can manually kick via AU's native BanMenu.
+- **Lobby warning popup** — when a player whose data is already in the
+  local cheat list rejoins, a sticky popup shows their name, friend
+  code, hashed PUID, and the prior detection reason. Dismiss with
+  **CTRL+Y**.
+- **Live-detection stack** — every fresh cheat detection pushes a new
+  sticky popup onto a stack; previous popups are preserved underneath
+  and revealed on dismiss. Dismiss with **CTRL+P**.
+- **No bubble background on cheat popups** — the chat-bubble sprite is
+  stripped from the alert clone so gameplay stays visible behind the text.
+- **Additional cheat-client signatures** — adds detection for `GoatNet
+  Client` (RPC 154), `ModMenuCrew` (RPC 201 and 205), plus a `HostGuard`
+  presence notice (RPC 176, info-only).
+- **Improved sabotage detection logging** — every cancelled sabotage RPC
+  fires a popup naming the player and the specific anomaly (direct
+  sabotage byte, remote fix, hold-while-not-sabotaged, etc.).
+- **No audio alarm / no in-chat alerts** — removed in favor of the
+  more visible always-on top-center popup.
+- **Level-spoof threshold removed** — the old `DetectedLevelAbove`
+  check false-flagged legit XP-glitch players. Only the reliable
+  "client sent SetLevel twice in one session" check remains.
 
 ## Installation
-Here's the updated guide with clear instructions for downloading the correct zip file and extracting it, as well as replacing the DLL if you've previously installed the mod, as this has been requested to be updated multiple times...
 
-### For First-Time Installation:
+1. Install BepInEx 6 IL2CPP for Among Us
+2. Launch AU once with BepInEx to generate interop assemblies
+3. Drop `GreaterAmongUs.dll` (renamed from build output) into
+   `Among Us\BepInEx\plugins\`
+4. Launch Among Us — version banner should read
+   `GreaterAmongUs v1.4 …` in the main menu
 
-1. **Download the Correct Version**: 
-   - Go to the [Releases](https://github.com/EnhancedNetwork/BetterAmongUs/releases) page
-   - **Choose the correct zip file** for your platform:
-     - Steam and itch.io users: `BAU-SteamItchio-Version.zip `
-     - Epic Games and Microsoft Store users: `BAU-EpicMsStore-Version.zip`
+GreaterAmongUs and BetterAmongUs use different `PLUGIN_GUID`s so they
+*can* coexist, but you probably want only one loaded at a time to
+avoid duplicate detections.
 
-2. **Extract the Files**:
-   - Extract the downloaded zip file to a temporary location
+## Building from source
 
-3. **Install to Among Us Folder**:
-   - Navigate to your Among Us installation directory
-   - Copy ALL files and folders from the extracted zip into your Among Us folder
-   - Overwrite any existing files when prompted
+Project targets **.NET 6.0**. The csproj references interop assemblies
+directly from your local BepInEx folder. Update the `<InteropDir>`
+property in `BetterAmongUs.csproj` (or override on the command line
+with `-p:InteropDir=...`) to point at your install's
+`BepInEx\interop\` directory.
 
-4. **Verify Installation**:
-   - Launch Among Us
-   - If installed correctly, you should see "BetterAmongUs" in the main menu
+```bash
+dotnet build -c Release
+```
 
-### For Updating an Existing Installation:
+Output: `bin\Release\net6.0\BetterAmongUs.dll` — rename to
+`GreaterAmongUs.dll` when deploying if you want the filename to match
+the displayed mod name.
 
-1. **Download the DLL File**:
-   - Go to the [Releases](https://github.com/EnhancedNetwork/BetterAmongUs/releases) page
-   - Download just the `BetterAmongUs.dll` file
+## License
 
-2. **Replace the Old DLL**:
-   - Navigate to your Among Us installation folder
-   - Go to: `BepInEx/plugins/`
-   - Replace the existing `BetterAmongUs.dll` with the newly downloaded one
+GPL v3.0 (inherited from upstream BetterAmongUs). See `LICENSE` for the
+full text. You are free to fork, modify, and redistribute under the
+same license. You must:
 
-3. **Verify Update**:
-   - Launch Among Us
-   - Check that the mod version has been updated in the main menu
-
-## Getting Started
-
-1. **Explore the Features**: Use the pause menu to discover new options and settings.
-2. **Check the Commands**: Type `/commands` in the chat to view a list of all available commands.
-3. **Stay Updated**: Keep an eye on this page for future updates and new features.
-
-## Supported Platforms
-- ✅ Steam
-- ✅ Epic Games
-- ✅ Microsoft Store
-- ✅ itch.io
-- ⚠️ Android (Unknown)
-- ❌ iOS
-- ❌ Xbox/Playstation/Switch
-
-## Supported Game Versions
-- ✅ AU **v17.1.0** / **v2025.11.18**: (BAU v1.3.1) >
-- ✅ AU **v17.0.1** / **v2025.10.14**: (BAU v1.3.0) >
-- ✅ AU **v16.1.0** / **v2025.6.10**: (BAU v1.2.0 Beta 1) >
-- ✅ AU **v16.0.0** / **v2025.3.25**: (BAU v1.1.6 Beta 1) >
-- ✅ AU **v2024.11.26**: >
-- ✅ AU **v2024.10.29**: >
-- ✅ AU **v2024.9.4**: >
-- ✅ AU **v2024.8.13**: >
-- ✅ AU **v2024.6.18**: (BAU v1.0.0) >
-- ❌ AU **v2024.3.5**: or Below <
-
-## Features
-
-BetterAmongUs comes packed with a variety of features designed to improve your gameplay experience:
-
-- **Built-in Client-Sided Anti-Cheat**: Enjoy a fair game by preventing cheaters from ruining your fun.
-- **Host Enhancements**: Gain more control as a host with additional options and settings.
-- **Better Options**: Customize your game with a range of new and improved options.
-- **Commands**: Utilize a set of commands to manage and enhance gameplay.
-- **Client Improvements**: Experience smoother gameplay with various client-side improvements.
-- **And More!**: Stay tuned for more exciting features coming your way!
-
-<img width="700" height="500" alt="freeplay-promo" src="/assets/freeplay-promo.png" />
-
-## Anti-Cheat
-
-Are you annoyed with pesky cheaters? Well, fear no more! BetterAmongUs has a built-in anti-cheat for both host and non-host players.
-
-### The Anti-Cheat Can:
-- **Check for Invalid Actions/RPCS**: Detect and prevent unauthorized actions and RPC calls.
-- **Cancel Out Invalid Actions/RPCS**: Automatically cancel any suspicious activities detected.
-- **Detect Specific Cheat Clients**: Identify known cheat clients to keep your game fair.
-- **Save Data About Cheaters**: Keep track of detected cheaters for future reference.
-- **And More**: Additional anti-cheat measures to ensure a secure gameplay environment.
-
-## Commands
-
-BetterAmongUs offers a variety of commands to enhance your control over the game:
-
-- `/help` Get help with commands.
-- `/commands` Get a list of all available commands.
-- `/dump` Dump the entire log to the user's desktop.
-- `/player {id}` Get a player's information.
-- `/players` Get all player information.
-- `/setprefix {prefix}` Set the command prefix.
-- `/kick {id}` Kick a player from the game (Host Only!).
-- `/ban {id}` Ban a player from the game (Host Only!).
-- `/endgame` Force end the game (Host Only!).
-- `/removeplayer {identifier}` Remove player from local Anti-Cheat data by (FriendCode, HashPuid).
-- `/removeall` Remove all players from local Anti-Cheat data.
+- Keep the `LICENSE` file intact
+- Preserve original copyright notices
+- Make source code available for any binary distribution
+- License derivatives under GPL v3.0 (or later)
 
 ## Credits
 
-A huge thank you to everyone who contributed to making BetterAmongUs a reality!
-
-- **Head Developer**: [D1GQ](https://github.com/D1GQ)
-
-## Contacts
-betterauofficial@gmail.com
+- **D1GQ** — original author of BetterAmongUs
+  ([upstream repo](https://github.com/D1GQ/BetterAmongUs))
+- This fork — bug fixes and feature changes listed above
 
 ## Disclaimer
 
-**BetterAmongUs** is an unofficial, fan-made mod for **Among Us**. It is not affiliated with, endorsed by, or associated with **InnerSloth LLC** or the official **Among Us** game. All trademarks and copyrights related to **Among Us** are the property of **InnerSloth LLC**. This mod is created purely for entertainment purposes and to enhance the gaming experience. Use of this mod is at your own risk.
-
----
-
-**Important Note**: Always ensure your game version matches the supported versions listed above. If you encounter issues, verify you downloaded the correct zip file for your platform or replaced the DLL in the correct location.
+**GreaterAmongUs** (and its parent project BetterAmongUs) is an
+unofficial, fan-made mod for **Among Us**. It is not affiliated with,
+endorsed by, or associated with **InnerSloth LLC** or the official
+**Among Us** game. All trademarks and copyrights related to **Among
+Us** are the property of **InnerSloth LLC**. This mod is created for
+entertainment purposes only. Use at your own risk.

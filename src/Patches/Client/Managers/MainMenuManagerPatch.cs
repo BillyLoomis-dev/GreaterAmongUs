@@ -35,7 +35,7 @@ internal static class MainMenuManagerPatch
     [HarmonyPostfix]
     private static void MainMenuManager_Start_Postfix(MainMenuManager __instance)
     {
-        // Check if other mods haven't disabled the BAU logo replacement
+        // Check if other mods haven't disabled the logo replacement
         if (!BAUModdedSupportFlags.HasFlag(BAUModdedSupportFlags.Disable_BAULogo))
         {
             // Find the original Among Us logo
@@ -46,11 +46,15 @@ internal static class MainMenuManagerPatch
             sizer.transform.localPosition = new Vector3(sizer.transform.localPosition.x, sizer.transform.localPosition.y - 0.035f, sizer.transform.localPosition.z);
             sizer.transform.position = new Vector3(sizer.transform.position.x, sizer.transform.position.y, -0.5f);
 
-            // Scale down the logo slightly
-            logo.transform.localScale = new Vector3(0.003f, 0.0025f, 0f);
+            // Scale down the logo. Y reduced by 10% (0.0025 -> 0.00225) so
+            // the taller GreaterAmongUs PNG isn't clipped at the top/bottom
+            // by the surrounding menu UI.
+            logo.transform.localScale = new Vector3(0.003f, 0.00225f, 0f);
 
-            // Replace Among Us sprite with Better Among Us logo
-            logo.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("BetterAmongUs.Resources.Images.BetterAmongUs-Logo.png", 1f);
+            // Main menu uses GreaterAmongUs-MainMenu.png (smaller, ~1.5MB).
+            // The bigger GreaterAmongUs-Logo.png stays for the splash screen
+            // only since that scene renders the logo at much larger size.
+            logo.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("BetterAmongUs.Resources.Images.GreaterAmongUs-MainMenu.png", 1f);
         }
 
         // Apply custom colors to main menu background

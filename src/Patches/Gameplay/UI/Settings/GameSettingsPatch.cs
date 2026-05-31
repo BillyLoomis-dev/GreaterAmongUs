@@ -18,7 +18,6 @@ class BetterGameSettings
     internal static OptionCheckboxItem? UseBanWordList;
     internal static OptionCheckboxItem? UseBanWordListOnlyLobby;
     internal static OptionIntItem? HideAndSeekImpNum;
-    internal static OptionIntItem? DetectedLevelAbove;
     internal static OptionIntItem? KickLevelBelow;
     internal static OptionCheckboxItem? DetectCheatClients;
     internal static OptionCheckboxItem? DetectInvalidRPCs;
@@ -59,8 +58,14 @@ internal static class GameSettingsPatch
             if (IsPreload || GameState.IsHost)
             {
                 OptionTitleItem.Create(BetterSettingsTab, "BetterSetting.TextHeader.HostOnly");
+                // Default to Kick (index 1), NOT Ban (index 2). Innersloth's 2026.x
+                // anti-abuse system bans the HOST when the host issues KickPlayer
+                // with ban=true (which writes to AU's lobby ban list). BAU's own
+                // CheatData persistence auto-re-kicks the same cheater on future
+                // games anyway, so Ban mode adds risk without benefit. Users can
+                // still flip this to Ban in BAU settings if they accept the risk.
                 BetterGameSettings.WhenCheating = OptionStringItem.Create(100, BetterSettingsTab, "BetterSetting.Setting.WhenCheating",
-                    ["BetterSetting.Setting.WhenCheating.Notify", "BetterSetting.Setting.WhenCheating.Kick", "BetterSetting.Setting.WhenCheating.Ban"], 2);
+                    ["BetterSetting.Setting.WhenCheating.Notify", "BetterSetting.Setting.WhenCheating.Kick", "BetterSetting.Setting.WhenCheating.Ban"], 1);
                 BetterGameSettings.InvalidFriendCode = OptionCheckboxItem.Create(200, BetterSettingsTab, "BetterSetting.Setting.InvalidFriendCode", true);
                 BetterGameSettings.CancelInvalidSabotage = OptionCheckboxItem.Create(900, BetterSettingsTab, "BetterSetting.Setting.CancelInvalidSabotage", true);
                 BetterGameSettings.UseBanPlayerList = OptionCheckboxItem.Create(300, BetterSettingsTab, "BetterSetting.Setting.UseBanPlayerList", true);
@@ -71,7 +76,6 @@ internal static class GameSettingsPatch
 
             OptionTitleItem.Create(BetterSettingsTab, "BetterSetting.TextHeader.Detections");
             BetterGameSettings.CensorDetectionReason = OptionCheckboxItem.Create(1300, BetterSettingsTab, "BetterSetting.Setting.CensorDetectionReason", false);
-            BetterGameSettings.DetectedLevelAbove = OptionIntItem.Create(600, BetterSettingsTab, "BetterSetting.Setting.DetectedLevelAbove", (100, 10000, 5), 500, ("Lv ", ""));
             BetterGameSettings.KickLevelBelow = OptionIntItem.Create(1700, BetterSettingsTab, "BetterSetting.Setting.KickLevelBelow", (0, 10000, 1), 0, ("Lv ", ""));
             BetterGameSettings.DetectCheatClients = OptionCheckboxItem.Create(700, BetterSettingsTab, "BetterSetting.Setting.DetectCheatClients", true);
             BetterGameSettings.DetectInvalidRPCs = OptionCheckboxItem.Create(800, BetterSettingsTab, "BetterSetting.Setting.DetectInvalidRPCs", true);

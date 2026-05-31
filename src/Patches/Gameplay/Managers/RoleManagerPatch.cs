@@ -155,7 +155,12 @@ internal static class RoleManagerPatch
                         pc.RpcSetRole(kvp.Key);
 
                         // Desync role to hide special role from non-BAU players
-                        if (BetterGameSettings.DesyncRoles.GetBool())
+                        // Skip the per-target desync override on Innersloth's vanilla
+                        // servers — they treat the double-SetRole pattern (broadcast then
+                        // per-target override with a different role value) as Hacking and
+                        // kick the host. The first RpcSetRole above still fires; we just
+                        // don't hide the special role from non-BAU players.
+                        if (BetterGameSettings.DesyncRoles.GetBool() && !GameState.IsVanillaServer)
                         {
                             if (kvp.Key is not (RoleTypes.Phantom or RoleTypes.Viper))
                             {
@@ -195,7 +200,12 @@ internal static class RoleManagerPatch
                         pc.RpcSetRole(kvp.Key);
 
                         // Desync role to hide special role from non-BAU players
-                        if (BetterGameSettings.DesyncRoles.GetBool())
+                        // Skip the per-target desync override on Innersloth's vanilla
+                        // servers — they treat the double-SetRole pattern (broadcast then
+                        // per-target override with a different role value) as Hacking and
+                        // kick the host. The first RpcSetRole above still fires; we just
+                        // don't hide the special role from non-BAU players.
+                        if (BetterGameSettings.DesyncRoles.GetBool() && !GameState.IsVanillaServer)
                         {
                             if (kvp.Key is not RoleTypes.Noisemaker)
                             {
@@ -354,8 +364,9 @@ internal static class RoleManagerPatch
             {
                 player.RpcSetRole(kvp.Key);
 
-                // Desync ghost role to hide it from non-BAU players
-                if (BetterGameSettings.DesyncRoles.GetBool())
+                // Desync ghost role to hide it from non-BAU players. Skip on Innersloth
+                // vanilla — see Impostor/Crewmate desync guards above for why.
+                if (BetterGameSettings.DesyncRoles.GetBool() && !GameState.IsVanillaServer)
                 {
                     AmongUsClient.Instance.SendRpcImmediatelyDesync(player.NetId, RpcCalls.SetRole, SendOption.None, SendTo(player), writer =>
                     {

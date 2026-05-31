@@ -20,7 +20,7 @@ internal static class DiscordPatch
         if (BAUModdedSupportFlags.HasFlag(BAUModdedSupportFlags.Disable_DiscordRP)) return;
         if (activity == null) return;
 
-        string details = $"BAU {BAUPlugin.GetVersionText()}";
+        string details = $"{ModInfo.PLUGIN_NAME} {BAUPlugin.GetVersionText()}";
         activity.Details = details;
 
         // Skip lobby info processing if Discord already shows "In Menus"
@@ -37,16 +37,16 @@ internal static class DiscordPatch
                 {
                     // Show lobby code with region in parentheses
                     if (GameState.IsNormalGame)
-                        details = $"BAU - {lobbycode} ({region})";
+                        details = $"{ModInfo.PLUGIN_NAME} - {lobbycode} ({region})";
                     else if (GameState.IsHideNSeek)
-                        details = $"BAU Hide & Seek - {lobbycode} ({region})";
+                        details = $"{ModInfo.PLUGIN_NAME} Hide & Seek - {lobbycode} ({region})";
                 }
             }
             else
             {
                 // Streamer mode hides lobby code, only show mode info
                 if (GameState.IsHideNSeek)
-                    details = $"BAU v{ModInfo.PLUGIN_VERSION} - Hide & Seek";
+                    details = $"{ModInfo.PLUGIN_NAME} v{ModInfo.PLUGIN_VERSION} - Hide & Seek";
             }
         }
         catch

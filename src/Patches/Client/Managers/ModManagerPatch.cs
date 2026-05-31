@@ -32,8 +32,8 @@ internal static class ModManagerPatch
             }
             else
             {
-                // Replace the mod stamp sprite with BAU's custom version
-                // unless other mods have disabled custom mod stamps
+                // Replace the mod stamp sprite (original BAU branded image,
+                // kept on the credits screen at user's request).
                 if (!BAUModdedSupportFlags.HasFlag(BAUModdedSupportFlags.Disable_CustomModStamp))
                 {
                     modStamp.sprite = Utils.LoadSprite("BetterAmongUs.Resources.Images.BetterAmongUs-Mod.png", 250f);

@@ -38,7 +38,10 @@ internal sealed class HandshakeHandler
     /// </summary>
     private IEnumerator CoWaitSendSecretToPlayer()
     {
-        if (!BAUPlugin.SendBetterRpc.Value) yield break;
+        // Skip BAU handshake on Innersloth's vanilla servers — they validate
+        // SetNamePlateStr RPC payload length as of AU ~2026.x and disconnect
+        // with reason Hacking when they see BAU's trailing packed-RPC bytes.
+        if (!BAUPlugin.SendBetterRpc.Value || GameState.IsVanillaServer) yield break;
 
         while (extendedData._Data?.Object == null || PlayerControl.LocalPlayer == null)
         {
@@ -55,7 +58,7 @@ internal sealed class HandshakeHandler
     /// </summary>
     internal void ResendSecretToPlayer()
     {
-        if (!BAUPlugin.SendBetterRpc.Value) return;
+        if (!BAUPlugin.SendBetterRpc.Value || GameState.IsVanillaServer) return;
         if (HasSendSharedSecret && extendedData.IsVerifiedBetterUser) return;
 
         HasSendSharedSecret = false;
@@ -113,7 +116,7 @@ internal sealed class HandshakeHandler
     // Client sends back to local client
     private void SendSecretHashToSender(int tempKey, int senderClientId)
     {
-        if (!BAUPlugin.SendBetterRpc.Value) return;
+        if (!BAUPlugin.SendBetterRpc.Value || GameState.IsVanillaServer) return;
 
         int hash = SharedSecret.GetSharedSecretHash();
         // Logger.Log($"Sending secret hash: {hash} (tempKey: {tempKey})");

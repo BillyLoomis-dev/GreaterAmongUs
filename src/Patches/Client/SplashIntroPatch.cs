@@ -112,9 +112,12 @@ internal static class SplashIntroPatch
         _betterLogo = UnityEngine.Object.Instantiate(innerLogo, innerLogo.transform.parent);
         innerLogo.DestroyObj();
 
-        _betterLogo.name = "BetterLogo";
+        _betterLogo.name = "GreaterLogo";
+        // Resource path: csproj wildcards every PNG under Resources\Images into
+        // the assembly with prefix "BetterAmongUs.Resources.Images." (the
+        // assembly's default namespace, NOT the fork's display name).
         _betterLogo.GetComponent<SpriteRenderer>().sprite =
-            Utils.LoadSprite("BetterAmongUs.Resources.Images.BetterAmongUs-Logo.png", 150f);
+            Utils.LoadSprite("BetterAmongUs.Resources.Images.GreaterAmongUs-Logo.png", 150f);
     }
 
     private static bool CheckIfDone(SplashManager __instance, bool isSkip = false)

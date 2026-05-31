@@ -1,5 +1,6 @@
 using BetterAmongUs.Attributes;
 using BetterAmongUs.Helpers;
+using BetterAmongUs.Managers;
 using Hazel;
 using UnityEngine;
 
@@ -72,18 +73,32 @@ internal sealed class UpdateSystemHandler : RPCHandler
         return true;
     }
 
+    // Helper: cancel an invalid sabotage/fix RPC AND surface it as a cheat detection
+    // (popup + horn + chat + persistent CheatData entry + auto-kick).
+    // Without this, UpdateSystemHandler used to silently drop the RPC with only a
+    // generic log line ("RPC canceled by Anti-Cheat: Electrical - 0") and no name,
+    // no audio, no popup — the user couldn't tell who did what.
+    private static bool Flag(PlayerControl? sender, string what)
+    {
+        if (sender != null && sender.Data != null)
+        {
+            BetterNotificationManager.NotifyCheat(sender, $"Invalid sabotage/fix: {what}");
+        }
+        return false;
+    }
+
     private static bool HandleSabotageSystem(PlayerControl? sender, SabotageSystemType sabotageSystem, MessageReader reader)
     {
         byte count = reader.ReadByte();
 
         if (!sender.IsImpostorTeam())
         {
-            return false;
+            return Flag(sender, "non-impostor triggered sabotage");
         }
 
         if (sabotageSystem.Timer > 0f)
         {
-            return false;
+            return Flag(sender, "sabotage during cooldown");
         }
 
         return true;
@@ -99,17 +114,17 @@ internal sealed class UpdateSystemHandler : RPCHandler
     {
         if (count == 128) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
         {
-            return false;
+            return Flag(sender, "Electrical: direct-sabotage byte from client");
         }
 
         if (!switchSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "Electrical: flip while not sabotaged");
         }
 
         if (!CheckConsoleDistance<ElectricTask>(sender))
         {
-            return false;
+            return Flag(sender, "Electrical: not at console (remote fix)");
         }
 
         return true;
@@ -144,141 +159,110 @@ internal sealed class UpdateSystemHandler : RPCHandler
 
     private static bool HandleHqHudSystem(PlayerControl? sender, HqHudSystemType hqHudSystem, byte count)
     {
-        if ((count & 128) > 0) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if ((count & 128) > 0)
         {
-            return false;
+            return Flag(sender, "Comms (HQ): direct-sabotage byte from client");
         }
-
         if (!hqHudSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "Comms (HQ): flip while not sabotaged");
         }
-
         if (!CheckConsoleDistance<HqHudOverrideTask>(sender, 2f))
         {
-            return false;
+            return Flag(sender, "Comms (HQ): not at console (remote fix)");
         }
-
         return true;
     }
 
     private static bool HandleHudOverrideSystem(PlayerControl? sender, HudOverrideSystemType hudOverrideSystem, byte count)
     {
-        if (count == 128) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 128)
         {
-            return false;
+            return Flag(sender, "Comms: direct-sabotage byte from client");
         }
-
         if (!hudOverrideSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "Comms: flip while not sabotaged");
         }
-
         if (!CheckConsoleDistance<HudOverrideTask>(sender, 2f))
         {
-            return false;
+            return Flag(sender, "Comms: not at console (remote fix)");
         }
-
         return true;
     }
 
     private static bool HandleMushroomMixupSabotageSystem(PlayerControl? sender, MushroomMixupSabotageSystem mushroomMixupSabotage, byte count)
     {
-        if (count == 1) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 1)
         {
-            return false;
+            return Flag(sender, "MushroomMixup: direct-sabotage byte from client");
         }
-
         if (mushroomMixupSabotage.IsActive)
         {
-            return false;
+            return Flag(sender, "MushroomMixup: triggered while already active");
         }
-
         return true;
     }
 
     private static bool HandleDoorsSystem(PlayerControl? sender, DoorsSystemType doorsSystem, byte count)
     {
-        if (count == 128) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 128)
         {
-            return false;
+            return Flag(sender, "Doors: direct-sabotage byte from client");
         }
-
         return true;
     }
 
     private static bool HandleReactorSystem(PlayerControl? sender, ReactorSystemType reactorSystem, byte count)
     {
-        if (count == 128 || count == 16) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 128 || count == 16)
         {
-            return false;
+            return Flag(sender, "Reactor: direct-sabotage byte from client");
         }
-
         if (!reactorSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "Reactor: hold while not sabotaged");
         }
-
         if (count.HasAnyBit(64))
         {
             foreach (var tuple in reactorSystem.UserConsolePairs)
             {
                 if (tuple.Item1 == sender.PlayerId)
                 {
-                    return false;
+                    return Flag(sender, "Reactor: duplicate hand-hold from same player");
                 }
             }
         }
-
-        /*
-          if (!CheckConsoleDistance<ReactorTask>(sender))
-          {
-              return false;
-          }
-         */
-
         return true;
     }
 
     private static bool HandleHeliSabotageSystem(PlayerControl? sender, HeliSabotageSystem heliSabotageSystem, byte count)
     {
-        if (count == 128) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 128)
         {
-            return false;
+            return Flag(sender, "HeliSabotage: direct-sabotage byte from client");
         }
-
         if (!heliSabotageSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "HeliSabotage: hold while not sabotaged");
         }
-
         if (!CheckConsoleDistance<HeliCharlesTask>(sender))
         {
-            return false;
+            return Flag(sender, "HeliSabotage: not at console (remote fix)");
         }
-
         return true;
     }
 
     private static bool HandleLifeSuppSystem(PlayerControl? sender, LifeSuppSystemType lifeSuppSystem, byte count)
     {
-        if (count == 128) // Direct sabotage call from client, which is not possible, only the host should have this count when HandleSabotageSystem it's called
+        if (count == 128)
         {
-            return false;
+            return Flag(sender, "LifeSupp: direct-sabotage byte from client");
         }
-
         if (!lifeSuppSystem.IsActive)
         {
-            return false;
+            return Flag(sender, "LifeSupp: input while not sabotaged");
         }
-
-        /*
-        if (!CheckConsoleDistance<NoOxyTask>(sender))
-        {
-            return false;
-        }
-        */
-
         return true;
     }
 }

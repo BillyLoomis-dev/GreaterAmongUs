@@ -461,7 +461,12 @@ internal static class NetworkManager
 
         if (BetterAntiCheat.CheckCancelRPC(player, callId, reader) != true)
         {
-            if (!player.IsLocalPlayer()) Logger_.LogCheat($"RPC canceled by Anti-Cheat: {Enum.GetName((RpcCalls)callId)}{Enum.GetName((CustomRPC)callId)} - {callId}");
+            if (!player.IsLocalPlayer())
+            {
+                string who = player.BetterData()?.RealName ?? player.Data?.PlayerName ?? "?";
+                string rpcName = Enum.GetName((RpcCalls)callId) ?? Enum.GetName((CustomRPC)callId) ?? $"Unregistered({callId})";
+                Logger_.LogCheat($"{who} - RPC canceled by Anti-Cheat: {rpcName} ({callId})");
+            }
             return false;
         }
 

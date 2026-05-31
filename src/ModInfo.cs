@@ -1,10 +1,11 @@
-﻿using BetterAmongUs.Enums;
+using BetterAmongUs.Enums;
 using System.Reflection;
 
 namespace BetterAmongUs;
 
 /// <summary>
-/// Contains metadata and constants for the BetterAmongUs mod.
+/// Contains metadata and constants for the GreaterAmongUs mod.
+/// GreaterAmongUs is a fork of BetterAmongUs by D1GQ, distributed under GPL v3.0.
 /// </summary>
 internal static class ModInfo
 {
@@ -29,39 +30,47 @@ internal static class ModInfo
     internal const string BETA_NUM = "0";
 
     /// <summary>
-    /// The hotfix number for hotfix releases.
+    /// The hotfix number for hotfix releases. Unused for v1.4 (IS_HOTFIX=false).
     /// </summary>
-    internal const string HOTFIX_NUM = "3";
+    internal const string HOTFIX_NUM = "0";
 
     /// <summary>
-    /// Indicates whether this is a hotfix release.
+    /// Indicates whether this is a hotfix release. Clean re-version for v1.4.
     /// </summary>
-    internal const bool IS_HOTFIX = true;
+    internal const bool IS_HOTFIX = false;
 
     /// <summary>
-    /// The name of BAU.
+    /// The display name of this mod (the fork).
     /// </summary>
-    internal const string PLUGIN_NAME = "BetterAmongUs";
+    internal const string PLUGIN_NAME = "GreaterAmongUs";
 
     /// <summary>
-    /// The GUID (Globally Unique Identifier) of BAU.
+    /// The BepInEx plugin GUID. Unique to this fork so it does not collide
+    /// with the upstream BetterAmongUs install if both are present.
     /// </summary>
-    internal const string PLUGIN_GUID = "com.d1gq.betteramongus";
+    internal const string PLUGIN_GUID = "com.billyloomis-dev.greateramongus";
 
     /// <summary>
-    /// The version of BAU.
+    /// The version of GreaterAmongUs.
     /// </summary>
-    internal const string PLUGIN_VERSION = "1.3.2";
+    internal const string PLUGIN_VERSION = "1.4";
 
     /// <summary>
-    /// The GitHub repository URL for BAU.
+    /// The GitHub repository URL for this fork. In-game banners and the
+    /// bug-report link point here so issues land in this fork's tracker.
     /// </summary>
-    internal const string GITHUB = "https://github.com/D1GQ/BetterAmongUs";
+    internal const string GITHUB = "https://github.com/BillyLoomis-dev/GreaterAmongUs";
 
     /// <summary>
-    /// The Discord invite URL for BAU.
+    /// The upstream project this fork is derived from. Displayed alongside the
+    /// version banner so the GPL chain of derivation stays visible to users.
     /// </summary>
-    internal const string DISCORD = "https://discord.gg/vjYrXpzNAn";
+    internal const string UPSTREAM_GITHUB = "https://github.com/D1GQ/BetterAmongUs";
+
+    /// <summary>
+    /// Human-readable name of the upstream project. Used for "based on X" credits.
+    /// </summary>
+    internal const string UPSTREAM_NAME = "BetterAmongUs by D1GQ";
 
     /// <summary>
     /// Retrieves metadata from the assembly attributes.

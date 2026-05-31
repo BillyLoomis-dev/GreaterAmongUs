@@ -2,7 +2,6 @@ using BetterAmongUs.Attributes;
 using BetterAmongUs.Helpers;
 using BetterAmongUs.Managers;
 using BetterAmongUs.Mono;
-using BetterAmongUs.Patches.Gameplay.UI.Settings;
 using Hazel;
 
 namespace BetterAmongUs.Modules.AntiCheat;
@@ -11,6 +10,19 @@ namespace BetterAmongUs.Modules.AntiCheat;
 internal sealed class SetLevelHandler : RPCHandler
 {
     internal override byte CallId => (byte)RpcCalls.SetLevel;
+
+    // NOTE: We deliberately do NOT compare reported level against a threshold
+    // (formerly BetterGameSettings.DetectedLevelAbove). Innersloth has had
+    // long-standing XP-overflow glitches that legitimately push player levels
+    // far above 100 — there are known legit players above lv 1000. There is
+    // no wire signal that distinguishes a glitch beneficiary from a spoofer
+    // at the same level, so any threshold guarantees false positives.
+    //
+    // The only reliable level-related signal is "client sent SetLevel more
+    // than once in the same session", which catches LIVE level-spoofing.
+    // Vanilla AU only sends SetLevel once at session start; a second SetLevel
+    // means the client is actively modifying its level mid-session. That is
+    // what HandleAntiCheatCancel below catches.
 
     internal override bool HandleAntiCheatCancel(PlayerControl? sender, MessageReader reader)
     {
@@ -27,18 +39,5 @@ internal sealed class SetLevelHandler : RPCHandler
         sender.BetterData().AntiCheatInfo.HasSetLevel = true;
 
         return true;
-    }
-
-    internal override void HandleAntiCheat(PlayerControl? sender, MessageReader reader)
-    {
-        uint level = reader.ReadPackedUInt32() + 1;
-
-        if (level > BetterGameSettings.DetectedLevelAbove.GetInt())
-        {
-            if (BetterNotificationManager.NotifyCheat(sender, string.Format(Translator.GetString("AntiCheat.InvalidLevelRPC"), level)))
-            {
-                LogRpcInfo($"Suspicious level set: {level} (max allowed: {BetterGameSettings.DetectedLevelAbove.GetInt()})");
-            }
-        }
     }
 }

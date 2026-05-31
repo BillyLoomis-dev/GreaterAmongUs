@@ -114,12 +114,30 @@ static class PlayerControlHelper
             Ban = (Ban && BetterGameSettings.WhenCheating.GetStringValue() == 2) || forceBan;
         }
 
-        if (setReasonInfo != "")
-        {
-            PlayerJoinAndLeftPatch.BetterShowNotification(player.Data, forceReasonText: string.Format(setReasonInfo, Ban ? Translator.GetString("AntiCheat.Ban").ToLower() : Translator.GetString("AntiCheat.Kick").ToLower()));
-        }
+        // NOTIFICATION ALSO DISABLED: BetterShowNotification used to print
+        // "X has been banned/kicked by Anti-Cheat" in the in-game player list
+        // and BAU log. That message is now misleading because we no longer
+        // actually kick — it would falsely claim someone was banned when they
+        // weren't. The cheat popup + CTRL+Y lobby-warning already cover what
+        // the user needs to see. Re-enable below if you uncomment the
+        // KickPlayer call too.
+        // if (setReasonInfo != "")
+        // {
+        //     PlayerJoinAndLeftPatch.BetterShowNotification(player.Data, forceReasonText: string.Format(setReasonInfo, Ban ? Translator.GetString("AntiCheat.Ban").ToLower() : Translator.GetString("AntiCheat.Kick").ToLower()));
+        // }
 
-        AmongUsClient.Instance.KickPlayer(player.GetClientId(), Ban);
+        // HARD SAFETY: BAU does NOT auto-kick or auto-ban via AmongUsClient.KickPlayer.
+        // Innersloth's 2026.x anti-abuse system bans the HOST in response to rapid
+        // server-side kicks/bans (we hit this in testing — the host got "Banned"
+        // from their own lobby right after auto-kicking a cheater). Detections are
+        // still logged + popup'd + persisted to CheatData; when a known cheater
+        // rejoins a future lobby, a CTRL+Y warning popup appears showing their
+        // identity and prior reason. If you want to actually kick a player from
+        // your lobby, use AU's native BanMenu / kick button manually — that path
+        // is separate from this extension and isn't affected by this safety.
+        //
+        // To re-enable auto-kicks at your own risk: uncomment the call below.
+        // AmongUsClient.Instance.KickPlayer(player.GetClientId(), Ban);
 
         player.BetterData().AntiCheatInfo.BannedByAntiCheat = AntiCheatBan;
     }

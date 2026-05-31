@@ -207,8 +207,14 @@ internal class CustomLogListener : ILogListener
     /// <param name="eventArgs">The log event arguments.</param>
     public void LogEvent(object sender, LogEventArgs eventArgs)
     {
+        // Skip Unity's own log spam AND skip events from OUR OWN log source —
+        // otherwise the listener captures its own re-emissions and loops
+        // forever (game freezes). The source name BepInEx uses is the plugin
+        // GUID set in BAUPlugin.Load() via CreateLogSource(ModInfo.PLUGIN_GUID),
+        // so compare directly against that. (Original code hard-coded the string
+        // "betteramongus" which broke when the GUID was renamed for the fork.)
         if (eventArgs.Source.SourceName.ToLower().Contains("unity")
-            || eventArgs.Source.SourceName.ToLower().Contains("betteramongus")) return;
+            || eventArgs.Source.SourceName.Equals(ModInfo.PLUGIN_GUID, StringComparison.OrdinalIgnoreCase)) return;
 
         if (eventArgs.Level is LogLevel.None or LogLevel.Info)
         {

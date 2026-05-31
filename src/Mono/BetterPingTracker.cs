@@ -68,8 +68,14 @@ internal sealed class BetterPingTracker : MonoBehaviour
             sb.AppendFormat("{0}: <b>{1}</b>\n", Translator.GetString("Timer").ToUpper(), $"<{timeColor}>{lobbyTimerDisplay}</color>");
         }
 
-        sb.Append($"<color=#00dbdb><size=75%>BetterAmongUs {BAUPlugin.GetVersionText(true)}</size></color>\n");
-        sb.Append($"<color=#8A8A8A>{ModInfo.GITHUB}</color>\n".Size(52f));
+        sb.Append($"<color=#00dbdb><size=75%>{ModInfo.PLUGIN_NAME} {BAUPlugin.GetVersionText(true)}</size></color>\n");
+        // Strip the "https://" scheme from the displayed URLs for a
+        // cleaner in-game look. Full URLs are still kept in ModInfo.
+        sb.Append($"<color=#8A8A8A>{ModInfo.GITHUB.Replace("https://", "")}</color>\n".Size(52f));
+        sb.Append($"<color=#6A6A6A><size=55%>based on {ModInfo.UPSTREAM_NAME}</size></color>\n");
+        // Upstream URL right under the credit line so the GPL chain of
+        // derivation is visible to anyone reading the overlay.
+        sb.Append($"<color=#6A6A6A>{ModInfo.UPSTREAM_GITHUB.Replace("https://", "")}</color>\n".Size(45f));
 
         if (BAUPlugin.ShowFPS.Value)
         {

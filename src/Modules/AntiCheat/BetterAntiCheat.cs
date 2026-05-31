@@ -251,7 +251,8 @@ internal static class BetterAntiCheat
         if (!notCanceled)
         {
             var tempReader = MessageReader.Get(reader);
-            Logger_.LogCheat($"RPC canceled by Anti-Cheat: {Enum.GetName(typeof(SystemTypes), (int)systemType)} - {tempReader.ReadByte()}");
+            string who = player?.BetterData()?.RealName ?? player?.Data?.PlayerName ?? "?";
+            Logger_.LogCheat($"{who} - RPC canceled by Anti-Cheat: {Enum.GetName(typeof(SystemTypes), (int)systemType)} - {tempReader.ReadByte()}");
             tempReader.Recycle();
         }
 

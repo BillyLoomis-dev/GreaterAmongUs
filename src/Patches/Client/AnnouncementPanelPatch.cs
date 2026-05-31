@@ -70,7 +70,8 @@ internal static class AnnouncementPanelPatch
 
             if (modNews != null)
             {
-                // Load appropriate icon based on mod type
+                // Load appropriate icon based on mod type (original BAU
+                // icon restored at user's request).
                 switch (modNews.NewsType)
                 {
                     case NewsTypes.BAU:

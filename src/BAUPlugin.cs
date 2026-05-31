@@ -86,6 +86,7 @@ internal class BAUPlugin : BasePlugin
     /// </summary>
     internal static string[] SupportedAmongUsVersions =
     [
+        "2026.3.31",
         "2025.11.18",
     ];
 
@@ -155,14 +156,17 @@ internal class BAUPlugin : BasePlugin
         InstanceAttribute.RegisterAll();
         OutfitData.Initialize();
 
-        if (File.Exists(Path.Combine(BetterDataManager.filePathFolder, "better-log.txt")))
-            File.WriteAllText(Path.Combine(BetterDataManager.filePathFolder, "better-previous-log.txt"), File.ReadAllText(Path.Combine(BetterDataManager.filePathFolder, "better-log.txt")));
+        if (File.Exists(Path.Combine(BetterDataManager.filePathFolder, "greater-log.txt")))
+            File.WriteAllText(Path.Combine(BetterDataManager.filePathFolder, "greater-previous-log.txt"), File.ReadAllText(Path.Combine(BetterDataManager.filePathFolder, "greater-log.txt")));
 
-        File.WriteAllText(Path.Combine(BetterDataManager.filePathFolder, "better-log.txt"), "");
-        Logger_.Log("Better Among Us successfully loaded!");
+        File.WriteAllText(Path.Combine(BetterDataManager.filePathFolder, "greater-log.txt"), "");
+        Logger_.Log($"{ModInfo.PLUGIN_NAME} successfully loaded!");
 
         string SupportedVersions = string.Join(" ", SupportedAmongUsVersions);
-        Logger_.Log($"BetterAmongUs {BetterAmongUsVersion}-{ModInfo.BuildDate} - [{AppVersion} --> {SupportedVersions}] {Utils.GetPlatformName(PlatformData.Platform)}");
+        Logger_.Log($"{ModInfo.PLUGIN_NAME} {BetterAmongUsVersion}-{ModInfo.BuildDate} - [{AppVersion} --> {SupportedVersions}] {Utils.GetPlatformName(PlatformData.Platform)}");
+        // Plain ASCII dash (-) not em dash (—). The Windows console BAU spawns
+        // is CP437/CP1252, which renders Unicode em dash as garbage like "ΓÇö".
+        Logger_.Log($"based on {ModInfo.UPSTREAM_NAME} ({ModInfo.UPSTREAM_GITHUB}) - GPL v3.0");
     }
 
     /// <summary>
@@ -174,12 +178,60 @@ internal class BAUPlugin : BasePlugin
         ConsoleManager.ConfigPreventClose.Value = true;
         if (ConsoleManager.ConfigConsoleEnabled.Value) ConsoleManager.DetachConsole();
         ConsoleManager.ConfigConsoleEnabled.Value = false;
-        ConsoleManager.SetConsoleTitle("Among Us - BAU Console");
+        ConsoleManager.SetConsoleTitle($"Among Us - {ModInfo.PLUGIN_NAME} Console");
         Logger = BepInEx.Logging.Logger.CreateLogSource(ModInfo.PLUGIN_GUID);
         var customLogListener = new CustomLogListener();
         BepInEx.Logging.Logger.Listeners.Add(customLogListener);
         ConsoleManager.SetConsoleColor(ConsoleColor.Green);
-        ConsoleManager.ConsoleStream.WriteLine($".--------------------------------------------------------------------------------.\r\n|  ____       _   _                 _                                  _   _     |\r\n| | __ )  ___| |_| |_ ___ _ __     / \\   _ __ ___   ___  _ __   __ _  | | | |___ |\r\n| |  _ \\ / _ \\ __| __/ _ \\ '__|   / _ \\ | '_ ` _ \\ / _ \\| '_ \\ / _` | | | | / __||\r\n| | |_) |  __/ |_| ||  __/ |     / ___ \\| | | | | | (_) | | | | (_| | | |_| \\__ \\|\r\n| |____/ \\___|\\__|\\__\\___|_|    /_/   \\_\\_| |_| |_|\\___/|_| |_|\\__, |  \\___/|___/|\r\n|                                                              |___/             |\r\n'--------------------------------------------------------------------------------'");
+        // Console banner — figlet-style ASCII art for "GreaterAmongUs" plus
+        // centered credit lines underneath. Each line is padded to the same
+        // width so the right border never misaligns regardless of which line
+        // is longest.
+        {
+            // "GreaterAmongUs" in Standard figlet font (5 visible rows).
+            string[] artLines = new[]
+            {
+                @"   ____               _              _                            _   _    ",
+                @"  / ___|_ __ ___  __ _| |_ ___ _ __  / \   _ __ ___   ___  _ __  | | | |___ ",
+                @" | |  _| '__/ _ \/ _` | __/ _ \ '__|/ _ \ | '_ ` _ \ / _ \| '_ \ | | | / __|",
+                @" | |_| | | |  __/ (_| | ||  __/ |  / ___ \| | | | | | (_) | | | || |_| \__ \",
+                @"  \____|_|  \___|\__,_|\__\___|_| /_/   \_\_| |_| |_|\___/|_| |_| \___/|___/",
+            };
+
+            int artMax = artLines.Max(l => l.Length);
+            int contentWidth = Math.Max(artMax + 2, 80);
+            string h = new string('-', contentWidth);
+            string blank = new string(' ', contentWidth);
+
+            string Pad(string s) =>
+                s.Length >= contentWidth ? s.Substring(0, contentWidth) : s.PadRight(contentWidth);
+
+            string Center(string s)
+            {
+                if (s.Length >= contentWidth) return s.Substring(0, contentWidth);
+                int leftPad = (contentWidth - s.Length) / 2;
+                return s.PadLeft(s.Length + leftPad).PadRight(contentWidth);
+            }
+
+            // Strip the "https://" scheme from URLs for cleaner console output.
+            string url     = ModInfo.GITHUB.Replace("https://", "");
+            string urlUp   = ModInfo.UPSTREAM_GITHUB.Replace("https://", "");
+            string credit  = $"{ModInfo.PLUGIN_NAME} v{ModInfo.PLUGIN_VERSION} by BillyLoomis-dev";
+            string basedOn = $"based on {ModInfo.UPSTREAM_NAME} (GPL v3.0)";
+
+            ConsoleManager.ConsoleStream.WriteLine($".{h}.");
+            ConsoleManager.ConsoleStream.WriteLine($"|{blank}|");
+            foreach (var line in artLines)
+                ConsoleManager.ConsoleStream.WriteLine($"|{Pad(line)}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{blank}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{Center(credit)}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{Center(url)}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{blank}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{Center(basedOn)}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{Center(urlUp)}|");
+            ConsoleManager.ConsoleStream.WriteLine($"|{blank}|");
+            ConsoleManager.ConsoleStream.WriteLine($"'{h}'");
+        }
     }
 
     /// <summary>
@@ -282,16 +334,16 @@ internal class BAUPlugin : BasePlugin
     private void LoadOptions()
     {
         PrivateOnlyLobby = Config.Bind("Mod", "PrivateOnlyLobby", false);
-        AntiCheat = Config.Bind("Better Options", "AntiCheat", true);
-        SendBetterRpc = Config.Bind("Better Options", "SendBetterRpc", true);
-        BetterNotifications = Config.Bind("Better Options", "BetterNotifications", true);
-        ForceOwnLanguage = Config.Bind("Better Options", "ForceOwnLanguage", false);
-        ChatDarkMode = Config.Bind("Better Options", "ChatDarkMode", true);
-        ChatInGameplay = Config.Bind("Better Options", "ChatInGameplay", true);
-        LobbyPlayerInfo = Config.Bind("Better Options", "LobbyPlayerInfo", true);
-        DisableLobbyTheme = Config.Bind("Better Options", "DisableLobbyTheme", true);
-        UnlockFPS = Config.Bind("Better Options", "UnlockFPS", false);
-        ShowFPS = Config.Bind("Better Options", "ShowFPS", false);
+        AntiCheat = Config.Bind("Greater Options", "AntiCheat", true);
+        SendBetterRpc = Config.Bind("Greater Options", "SendBetterRpc", false);
+        BetterNotifications = Config.Bind("Greater Options", "BetterNotifications", true);
+        ForceOwnLanguage = Config.Bind("Greater Options", "ForceOwnLanguage", false);
+        ChatDarkMode = Config.Bind("Greater Options", "ChatDarkMode", true);
+        ChatInGameplay = Config.Bind("Greater Options", "ChatInGameplay", false);
+        LobbyPlayerInfo = Config.Bind("Greater Options", "LobbyPlayerInfo", true);
+        DisableLobbyTheme = Config.Bind("Greater Options", "DisableLobbyTheme", true);
+        UnlockFPS = Config.Bind("Greater Options", "UnlockFPS", false);
+        ShowFPS = Config.Bind("Greater Options", "ShowFPS", false);
         CommandPrefix = Config.Bind("Client Options", "CommandPrefix", "/");
         FavoriteColor = Config.Bind("Mod", "FavoriteColor", -1);
         SettingsPreset = Config.Bind("Mod", "SettingsPreset", 0);

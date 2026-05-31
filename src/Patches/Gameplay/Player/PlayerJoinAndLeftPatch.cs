@@ -1,5 +1,6 @@
 using BetterAmongUs.Data;
 using BetterAmongUs.Helpers;
+using BetterAmongUs.Managers;
 using BetterAmongUs.Modules;
 using BetterAmongUs.Mono;
 using BetterAmongUs.Patches.Gameplay.UI;
@@ -31,42 +32,50 @@ internal static class PlayerJoinAndLeftPatch
     [HarmonyPostfix]
     private static void AmongUsClient_OnPlayerJoined_Postfix(ClientData data)
     {
-        // Schedule ban list checks 2.5 seconds after player joins
+        // Schedule join-time checks 2.5s after the player joins so their data is fully synced.
         LateTask.Schedule(() =>
         {
-            if (GameState.IsHost)
+            var player = Utils.PlayerFromClientId(data.Id);
+            if (player == null || player.Data == null) return;
+
+            // Known-cheater lobby warning: if the joining player matches any
+            // entry in BAU's persistent cheat data (CheatData / SickoData /
+            // AUMData / KNData), surface a sticky popup with their identity
+            // and the stored reason. The user dismisses it with CTRL+Y.
+            // Fires regardless of host-status so non-host BAU users also get
+            // warned when they recognize someone from a past lobby.
+            try
             {
-                if (GameState.IsInGame)
+                var match = BetterDataManager.BetterDataFile.CheckPlayerDataWithReason(player.Data);
+                if (match.check)
                 {
-                    var player = Utils.PlayerFromClientId(data.Id);
-
-                    // Check if player is in ban list by friend code or PUID
-                    if (BetterGameSettings.UseBanPlayerList.GetBool())
-                    {
-                        if (player != null)
-                        {
-                            if (TextFileHandler.CompareStringMatch(BetterDataManager.banPlayerListFile,
-                                BAUPlugin.AllPlayerControls.Select(player => player.Data.FriendCode)
-                                .Concat(BAUPlugin.AllPlayerControls.Select(player => player.GetHashPuid())).ToArray()))
-                            {
-                                player.Kick(true, Translator.GetString("AntiCheat.BanPlayerListMessage"), bypassDataCheck: true);
-                            }
-                        }
-                    }
-
-                    // Check if player name matches banned name patterns
-                    if (BetterGameSettings.UseBanNameList.GetBool())
-                    {
-                        if (player != null)
-                        {
-                            if (TextFileHandler.CompareStringFilters(BetterDataManager.banNameListFile, [player.Data.PlayerName]))
-                            {
-                                player?.Kick(true, Translator.GetString("AntiCheat.BanPlayerListMessage"), bypassDataCheck: true);
-                            }
-                        }
-                    }
+                    BetterNotificationManager.NotifyKnownCheaterInLobby(
+                        player.BetterData()?.RealName ?? player.Data.PlayerName ?? "(unknown)",
+                        player.Data.FriendCode ?? "",
+                        player.GetHashPuid() ?? "",
+                        match.reason ?? "");
                 }
             }
+            catch (Exception ex) { Logger_.Error(ex, "OnPlayerJoinedPatch.KnownCheaterCheck"); }
+
+            // Old BanPlayerList / BanNameList auto-kick paths intentionally
+            // removed.
+            //
+            // (1) Auto-kick is disabled globally (see PlayerControlHelper.Kick)
+            //     because Innersloth's anti-abuse self-bans the HOST when BAU
+            //     calls KickPlayer rapidly. Those checks called Kick() which
+            //     now no-ops — but it still left misleading "X has been banned
+            //     due to ban player list" log lines for innocent players.
+            //
+            // (2) The original BanPlayerList check also had a logic bug — it
+            //     OR'd ALL players' friend codes / hashPUIDs and kicked the
+            //     JOINING player if ANY of them matched the file, instead of
+            //     kicking the matched player. That false-fired on every join
+            //     whenever any old auto-banned entry was still in the lobby.
+            //
+            // If you want manual ban enforcement, use AU's native BanMenu /
+            // kick button. CheatData-driven lobby warnings (CTRL+Y popup
+            // above) cover the "known cheater is back" use case.
         }, 2.5f, "OnPlayerJoinedPatch", false);
     }
 

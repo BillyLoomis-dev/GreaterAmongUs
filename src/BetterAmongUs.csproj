@@ -71,13 +71,22 @@
 		<Warning Text="Game path not found. Create $(ModPathFile) with game folder path." Condition="'$(CopyToGame)' == 'true' and ('$(GamePath)' == '' or !Exists('$(GamePath)'))" />
 	</Target>
 
-	<!-- NuGet Packages -->
+	<!-- Path to BepInEx-generated AU v17.3s interop assemblies on this machine.
+	     Override via -p:InteropDir=... on the dotnet build command if your AU is elsewhere. -->
+	<PropertyGroup>
+		<InteropDir Condition="'$(InteropDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Among Us bau\BepInEx\interop</InteropDir>
+	</PropertyGroup>
+
+	<!-- Direct references to the BepInEx-generated interop assemblies for AU v17.3s build 6803.
+	     Replaces the AmongUs.GameLibs.Steam + BepInEx.IL2CPP.MSBuild Unhollow pipeline. -->
 	<ItemGroup>
-		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2025.11.18" />
-		<PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.0.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<Reference Include="$(InteropDir)\*.dll">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
+	<!-- BepInEx runtime types (BasePlugin, etc.) still come from NuGet. -->
+	<ItemGroup>
 		<PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.692" Private="false" ExcludeAssets="runtime;native" />
 	</ItemGroup>
 

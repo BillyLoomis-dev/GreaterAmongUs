@@ -31,7 +31,7 @@ internal static class BetterDataManager
     /// <summary>
     /// Root directory for BetterAmongUs data.
     /// </summary>
-    internal static string filePathFolder = Path.Combine(BAUPlugin.GetGamePathToAmongUs(), $"Better_Data");
+    internal static string filePathFolder = Path.Combine(BAUPlugin.GetGamePathToAmongUs(), $"Greater_Data");
 
     /// <summary>
     /// Directory for save information files.

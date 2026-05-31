@@ -31,6 +31,26 @@ internal enum CustomRPC : int
     /// </summary>
     KillNetworkChat = 119,
 
+    /// <summary>
+    /// RPC identifier for GoatNetClient cheat detection. Original symbolic value 666; wire byte 154.
+    /// </summary>
+    GoatNet = 666, // Results in 154
+
+    /// <summary>
+    /// RPC identifier for HostGuard mod detection. HostGuard is a host-side anti-cheat,
+    /// not a cheat itself — treated as info-only (notify but don't flag/kick).
+    /// </summary>
+    HostGuard = 176,
+
+    /// <summary>
+    /// RPC identifier for ModMenuCrew chat-bypass cheat signature.
+    /// </summary>
+    ModMenuCrewChatBypass = 201,
+
+    /// <summary>
+    /// RPC identifier for ModMenuCrew role-validation cheat signature.
+    /// </summary>
+    ModMenuCrewRoleValidation = 205,
 
 
     // Better Among Us

@@ -65,6 +65,11 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 ### Option 2 — easy drag-and-drop bundle (no separate BepInEx install)
 
+> ## ⚠️ The first launch opens **vanilla** — this is normal
+> The very first time you start the game after installing, it loads as plain
+> Among Us with no mod. **Just close it and open it again** — GreaterAmongUs
+> will load. You only ever do this **once** (it's BepInEx setting itself up).
+
 Best for most players — this all-in-one zip already includes BepInEx, so
 you don't have to set anything up.
 
@@ -77,12 +82,10 @@ you don't have to set anything up.
 4. Extract **everything** from the zip into that folder. When Windows asks,
    choose **Replace the files in the destination** / **Merge folders** —
    you're only adding files, not deleting any.
-5. Launch Among Us. The main menu should read `GreaterAmongUs v1.4.1`
-   (a black console window may appear — that's normal, leave it open).
-
-> **If the game opens as plain vanilla** — usually only right after an Among Us
-> update — close it and open it once more. BepInEx regenerates its support
-> files in the background and only needs to do that once.
+5. Launch Among Us. **The first launch opens vanilla — close it and reopen
+   once** (see the note above). After that, the main menu reads
+   `GreaterAmongUs v1.4.1` on every launch (a black console window may
+   appear — that's normal, leave it open).
 
 The bundle only adds the `BepInEx` and `dotnet` folders plus
 `winhttp.dll` / `doorstop_config.ini` / `.doorstop_version`; nothing else in

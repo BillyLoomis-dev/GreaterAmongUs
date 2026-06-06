@@ -53,12 +53,38 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 ## Installation
 
+### Option 1 — plugin only (if you already run BepInEx 6 IL2CPP)
+
 1. Install BepInEx 6 IL2CPP for Among Us
 2. Launch AU once with BepInEx to generate interop assemblies
-3. Drop `GreaterAmongUs.dll` (renamed from build output) into
-   `Among Us\BepInEx\plugins\`
+3. Download `GreaterAmongUs-v1.4.1.dll` from the
+   [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest)
+   and drop it into `Among Us\BepInEx\plugins\`
 4. Launch Among Us — version banner should read
    `GreaterAmongUs v1.4.1 …` in the main menu
+
+### Option 2 — easy drag-and-drop bundle (no separate BepInEx install)
+
+Best for most players — this all-in-one zip already includes BepInEx, so
+you don't have to set anything up.
+
+1. **Close Among Us** if it's running.
+2. Download **`GreaterAmongUs-v1.4.1-AmongUs-Folder.zip`** from the
+   [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest).
+3. Open your Among Us folder — in Steam: right-click **Among Us → Manage →
+   Browse local files** (usually
+   `C:\Program Files (x86)\Steam\steamapps\common\Among Us`).
+4. Extract **everything** from the zip into that folder. When Windows asks,
+   choose **Replace the files in the destination** / **Merge folders** —
+   you're only adding files, not deleting any.
+5. Launch Among Us. The **first** launch takes ~30–60 s to set itself up and
+   a black console window may appear — that's normal, leave it open. The main
+   menu should then read `GreaterAmongUs v1.4.1`.
+
+The bundle only adds the `BepInEx` and `dotnet` folders plus
+`winhttp.dll` / `doorstop_config.ini` / `.doorstop_version`; nothing else in
+your game folder is touched. To uninstall, delete those and the game is fully
+vanilla again. **Steam version only.**
 
 GreaterAmongUs and BetterAmongUs use different `PLUGIN_GUID`s so they
 *can* coexist, but you probably want only one loaded at a time to

@@ -77,9 +77,12 @@ you don't have to set anything up.
 4. Extract **everything** from the zip into that folder. When Windows asks,
    choose **Replace the files in the destination** / **Merge folders** —
    you're only adding files, not deleting any.
-5. Launch Among Us. The **first** launch takes ~30–60 s to set itself up and
-   a black console window may appear — that's normal, leave it open. The main
-   menu should then read `GreaterAmongUs v1.4.1`.
+5. Launch Among Us. The main menu should read `GreaterAmongUs v1.4.1`
+   (a black console window may appear — that's normal, leave it open).
+
+> **If the game opens as plain vanilla** — usually only right after an Among Us
+> update — close it and open it once more. BepInEx regenerates its support
+> files in the background and only needs to do that once.
 
 The bundle only adds the `BepInEx` and `dotnet` folders plus
 `winhttp.dll` / `doorstop_config.ini` / `.doorstop_version`; nothing else in

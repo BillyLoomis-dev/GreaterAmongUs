@@ -86,6 +86,7 @@ internal class BAUPlugin : BasePlugin
     /// </summary>
     internal static string[] SupportedAmongUsVersions =
     [
+        "2026.6.5",
         "2026.3.31",
         "2025.11.18",
     ];

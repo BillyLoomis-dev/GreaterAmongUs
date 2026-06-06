@@ -53,7 +53,7 @@ internal static class ModInfo
     /// <summary>
     /// The version of GreaterAmongUs.
     /// </summary>
-    internal const string PLUGIN_VERSION = "1.4";
+    internal const string PLUGIN_VERSION = "1.4.1";
 
     /// <summary>
     /// The GitHub repository URL for this fork. In-game banners and the

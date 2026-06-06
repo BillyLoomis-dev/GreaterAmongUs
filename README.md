@@ -13,7 +13,7 @@
 > ship one.
 
 A client-sided anti-cheat / quality-of-life mod for Among Us, currently
-targeting **AU v17.3s (2026.3.31)** on **Steam**.
+targeting **AU 2026.6.5** on **Steam** (also compatible back to 2025.11.18).
 
 This project is a **fork of [BetterAmongUs](https://github.com/D1GQ/BetterAmongUs)
 by D1GQ**, distributed under the **GNU General Public License v3.0** in
@@ -21,7 +21,7 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 ## What's different from upstream BetterAmongUs
 
-- **AU v17.3s compatibility** — version array, build references, and
+- **AU 2026.6.5 compatibility** — version array, build references, and
   Harmony bindings updated for current Among Us.
 - **Vanilla-server safety** — the BAU custom-RPC handshake and per-target
   role-desync are gated off on official Innersloth servers. Both
@@ -58,7 +58,7 @@ accordance with the upstream license. See `LICENSE` for the full text.
 3. Drop `GreaterAmongUs.dll` (renamed from build output) into
    `Among Us\BepInEx\plugins\`
 4. Launch Among Us — version banner should read
-   `GreaterAmongUs v1.4 …` in the main menu
+   `GreaterAmongUs v1.4.1 …` in the main menu
 
 GreaterAmongUs and BetterAmongUs use different `PLUGIN_GUID`s so they
 *can* coexist, but you probably want only one loaded at a time to

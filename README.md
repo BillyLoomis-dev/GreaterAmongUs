@@ -69,7 +69,7 @@ Best for most players — this all-in-one zip already includes BepInEx, so
 you don't have to set anything up.
 
 1. **Close Among Us** if it's running.
-2. Download **`GreaterAmongUs-v1.4.1-AmongUs-Folder.zip`** from the
+2. Download **`GreaterAmongUs-v1.4.1-Steam.AmongUs-Folder.zip`** from the
    [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest).
 3. Open your Among Us folder — in Steam: right-click **Among Us → Manage →
    Browse local files** (usually

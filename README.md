@@ -61,7 +61,7 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 ### Option 1 — plugin only (if you already run BepInEx 6 IL2CPP)
 
-1. Install BepInEx 6 IL2CPP for Among Us
+1. Install BepInEx 6 IL2CPP(or last one) for Among Us
 2. Launch AU once with BepInEx to generate interop assemblies
 3. Download `GreaterAmongUs-v1.4.2.dll` from the
    [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest)

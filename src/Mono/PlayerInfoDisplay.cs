@@ -201,10 +201,13 @@ internal class PlayerInfoDisplay : MonoBehaviour
         else
         {
             var targetData = Utils.PlayerDataFromPlayerId(_player.shapeshiftTargetPlayerId);
-            var name = targetData.BetterData()?.RealName ?? targetData.PlayerName;
-            if (_player.IsImpostorTeammate())
-                name = name.ToColor(Colors.ImpostorRed);
-            if (targetData != null) _player.RawSetName(name);
+            if (targetData != null)
+            {
+                var name = targetData.BetterData()?.RealName ?? targetData.PlayerName;
+                if (_player.IsImpostorTeammate())
+                    name = name.ToColor(Colors.ImpostorRed);
+                _player.RawSetName(name);
+            }
         }
 
         UpdateTextIfChanged(_topText, _sbTagTop, ref _lastTopText);
@@ -391,9 +394,12 @@ internal class PlayerInfoDisplay : MonoBehaviour
     private void SetInGameInfo(StringBuilder sbTagTop)
     {
         if (_player.IsImpostorTeammate() || _player.IsLocalPlayer() ||
-            !PlayerControl.LocalPlayer.IsAlive() && !PlayerControl.LocalPlayer.Is(RoleTypes.GuardianAngel))
+            !PlayerControl.LocalPlayer.IsAlive())
         {
-            string roleInfo = _player.GetRoleName().ToColor(_player.Data.Role.TeamColor);
+            var teamColor = _player.Data.Role != null
+                ? _player.Data.Role.TeamColor
+                : (_player.IsImpostorTeam() ? Colors.ImpostorRed : Colors.CrewmateBlue);
+            string roleInfo = _player.GetRoleName().ToColor(teamColor);
 
             if (!_player.IsImpostorTeam() && _player.myTasks.Count > 0)
             {

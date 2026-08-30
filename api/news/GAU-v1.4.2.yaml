@@ -1,0 +1,33 @@
+^show: true
+^type: 1
+^title: GreaterAmongUs v1.4.2
+^subtitle: Judge update (Among Us 2026.8.18)
+^listtitle: GAU v1.4.2
+^date: 2026-08-30T12:00:00.0000000Z
+
+^content-en_US:
+ # GreaterAmongUs v1.4.2
+
+ Support for the **Among Us "Judge" update (2026.8.18)**, plus new anti-cheat.
+ ---
+
+ ## Change Log
+
+ #### New Detections
+ - **Fake Judge overrule** — a non-Judge queuing a vote overrule (the new `QueueOverruleVotes` RPC) is flagged and the overrule is canceled, so nobody can hijack the Judge's power to force an ejection. A local role spoof doesn't help the cheater: the host validates against the real, synced role.
+ - **Forged vote finalization** — a non-host sending `VotingComplete` (used by cheat menus to force-skip meetings or force-eject players) is now blocked.
+
+ #### Fixes
+ - **Unknown-RPC popup spam** — an unregistered RPC now notifies **once per player** instead of flooding the host with dozens of popups when a modded client spams a custom RPC.
+
+ #### Judge role
+ - Judge is colored correctly, and any future role now falls back to its in-game color automatically (no per-update hardcoding).
+ - Ghosts can see which player a Judge overruled in the meeting info — dead-only, exactly like every other role reveal.
+
+ #### Compatibility
+ - **Among Us 2026.8.18 (Judge) support** added to the supported-version list.
+ - Rebuilt against the current game's IL2CPP interop.
+ ---
+ ## [Github](https://github.com/BillyLoomis-dev/GreaterAmongUs)
+
+ Based on BetterAmongUs by D1GQ - GPL v3.0

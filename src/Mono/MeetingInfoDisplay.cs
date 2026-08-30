@@ -74,7 +74,7 @@ internal sealed class MeetingInfoDisplay : PlayerInfoDisplay
         var IdNumber = LevelDisplay.transform.Find("LevelNumber");
         IdLabel.gameObject.DestroyTextTranslators();
         IdLabel.GetComponent<TextMeshPro>().text = "ID";
-        IdNumber.GetComponent<TextMeshPro>().text = pva.TargetPlayerId.ToString();
+        IdNumber.GetComponent<TextMeshPro>().text = pva.PlayerId.Value.ToString();
         IdLabel.name = "IdLabel";
         IdNumber.name = "IdNumber";
         PlayerLevel.transform.position += new Vector3(0.23f, 0f);
@@ -219,9 +219,22 @@ internal sealed class MeetingInfoDisplay : PlayerInfoDisplay
             role += $" <color=#cbcbcb>({completedTasks}/{_player.myTasks.Count})</color>";
         }
 
+        // Judge overrule: show who this Judge overruled. Placed BEFORE the alive/dead gate below, so it
+        // is only ever visible to dead players (the role reveal itself is dead-only).
+        if (_player.Is(RoleTypes.Judge))
+        {
+            var roleInfo = _player.BetterData()?.RoleInfo;
+            if (roleInfo != null && roleInfo.JudgedId != byte.MaxValue)
+            {
+                var target = Utils.PlayerFromPlayerId(roleInfo.JudgedId);
+                string targetName = target?.BetterData()?.RealName ?? target?.Data?.PlayerName ?? "?";
+                role += $" <color=#e3d12b>(overruled {targetName})</color>";
+            }
+        }
+
         if (!_player.IsImpostorTeammate())
         {
-            if ((PlayerControl.LocalPlayer.IsAlive() || PlayerControl.LocalPlayer.Is(RoleTypes.GuardianAngel)) && !_player.IsLocalPlayer())
+            if (PlayerControl.LocalPlayer.IsAlive() && !_player.IsLocalPlayer())
             {
                 return string.Empty;
             }
@@ -313,7 +326,7 @@ internal sealed class MeetingInfoDisplay : PlayerInfoDisplay
     /// <returns>Disconnect reason text.</returns>
     private string GetDisconnectText()
     {
-        var playerData = GameData.Instance.GetPlayerById(_pva.TargetPlayerId);
+        var playerData = GameData.Instance.GetPlayerById(_pva.PlayerId.Value);
         var betterData = playerData?.BetterData();
 
         return betterData?.DisconnectReason switch

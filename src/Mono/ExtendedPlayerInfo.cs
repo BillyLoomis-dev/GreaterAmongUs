@@ -221,6 +221,12 @@ internal class ExtendedRoleInfo
     /// Gets or sets the role to display when dead.
     /// </summary>
     internal RoleTypes DeadDisplayRole { get; set; }
+
+    /// <summary>
+    /// If this player is a Judge, the PlayerId of whoever they overruled (byte.MaxValue = none yet).
+    /// Set by the SetJudgeOverrule patch; shown only in the dead-only role reveal.
+    /// </summary>
+    internal byte JudgedId { get; set; } = byte.MaxValue;
 }
 
 /// <summary>

@@ -22,6 +22,13 @@ internal static class BetterAntiCheat
     internal static bool IsEnabled => PlayerControl.LocalPlayer?.Data?.IsIncomplete == false;
 
     /// <summary>
+    /// Dedup for the "unregistered RPC" popup: notify once per (player, callId) per session. A modded
+    /// (not necessarily cheating) client can spam an unknown RPC thousands of times per game; without
+    /// this the host got a popup every single time.
+    /// </summary>
+    private static readonly HashSet<(byte player, byte callId)> _noticedUnknownRpc = [];
+
+    /// <summary>
     /// Updates anti-cheat checks for all players in the game.
     /// </summary>
     internal static void Update()
@@ -109,7 +116,9 @@ internal static class BetterAntiCheat
 
             if (TrustedRPCs(callId) != true && !player.IsHost())
             {
-                BetterNotificationManager.NotifyCheat(player, $"Unregistered RPC received: {callId}");
+                // Once per (player, callId) so a spammed unknown RPC can't flood the host with popups.
+                if (_noticedUnknownRpc.Add((player.PlayerId, callId)))
+                    BetterNotificationManager.NotifyCheat(player, $"Unregistered RPC received: {callId}");
                 reader.Recycle();
                 return false;
             }
@@ -133,6 +142,7 @@ internal static class BetterAntiCheat
             {
                 if (callId is (byte)RpcCalls.SetTasks
                 or (byte)RpcCalls.ExtendLobbyTimer
+                or (byte)RpcCalls.VotingComplete
                 or (byte)RpcCalls.CloseMeeting)
                 {
                     if (BetterNotificationManager.NotifyCheat(player, string.Format(Translator.GetString("AntiCheat.InvalidHostRPC"), Enum.GetName((RpcCalls)callId))))

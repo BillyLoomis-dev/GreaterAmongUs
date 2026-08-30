@@ -211,12 +211,12 @@ internal static class GameState
     /// <summary>
     /// Gets whether voting is currently in progress during a meeting.
     /// </summary>
-    internal static bool IsVoting => IsMeeting && MeetingHud.Instance?.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted;
+    internal static bool IsVoting => IsMeeting && MeetingHud.Instance?.state is MeetingHud.MeetingStates.Voted or MeetingHud.MeetingStates.NotVoted;
 
     /// <summary>
     /// Gets whether the meeting is proceeding to results.
     /// </summary>
-    internal static bool IsProceeding => IsMeeting && MeetingHud.Instance?.state is MeetingHud.VoteStates.Proceeding;
+    internal static bool IsProceeding => IsMeeting && MeetingHud.Instance?.state is MeetingHud.MeetingStates.Proceeding;
 
     /// <summary>
     /// Gets whether a player is being exiled.

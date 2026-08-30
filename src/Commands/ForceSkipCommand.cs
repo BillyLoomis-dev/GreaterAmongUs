@@ -31,7 +31,7 @@ internal sealed class ForceSkipCommand : BaseCommand
         {
             foreach (var client in AmongUsClient.Instance.allClients)
             {
-                MeetingHud.Instance.RpcClearVote(client.Id);
+                MeetingHud.Instance.RpcClearVote((byte)client.Id);
             }
             MeetingHud.Instance.RpcClose();
         }

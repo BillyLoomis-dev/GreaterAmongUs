@@ -108,7 +108,8 @@ internal static class RoleManagerPatch
             { RoleTypes.Scientist, 0 },
             { RoleTypes.Tracker, 0 },
             { RoleTypes.Noisemaker, 0 },
-            { RoleTypes.Detective, 0 }
+            { RoleTypes.Detective, 0 },
+            { RoleTypes.Judge, 0 }
         };
 
         List<RoleTypes> Roles = [.. ImpostorRoles.Keys, .. CrewmateRoles.Keys];

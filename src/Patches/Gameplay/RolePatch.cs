@@ -1,5 +1,7 @@
-﻿using BetterAmongUs.Mono;
+﻿using BetterAmongUs.Helpers;
+using BetterAmongUs.Mono;
 using HarmonyLib;
+using InnerNet;
 
 namespace BetterAmongUs.Patches.Gameplay;
 
@@ -18,5 +20,17 @@ internal static class RolePatch
         __instance.Player.BetterData().RoleInfo.HasNoisemakerNotify = true;
 
         return true;
+    }
+
+    // Judge overrule tracking: record who each Judge overruled, for the dead-only role reveal.
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.SetJudgeOverrule))]
+    [HarmonyPostfix]
+    private static void MeetingHud_SetJudgeOverrule_Postfix(MeetingHud __instance, PlayerId judgePlayerId, PlayerId targetPlayerId, ushort overruleNonce)
+    {
+        var roleInfo = Utils.PlayerFromPlayerId(judgePlayerId.Value)?.BetterData()?.RoleInfo;
+        if (roleInfo != null)
+        {
+            roleInfo.JudgedId = targetPlayerId.Value;
+        }
     }
 }

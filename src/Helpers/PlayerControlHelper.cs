@@ -329,7 +329,7 @@ static class PlayerControlHelper
     /// </summary>
     /// <param name="data">The player data to check.</param>
     /// <returns>True if the player is on the impostor team.</returns>
-    internal static bool IsImpostorTeam(this NetworkedPlayerInfo data) => data?.RoleType.GetBehaviourPrefab().IsImpostor == true;
+    internal static bool IsImpostorTeam(this NetworkedPlayerInfo data) => data?.RoleType.GetBehaviourPrefab()?.IsImpostor == true;
 
     /// <summary>
     /// Checks if a player is an impostor teammate of the local player.

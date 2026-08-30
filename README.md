@@ -13,7 +13,8 @@
 > ship one.
 
 A client-sided anti-cheat / quality-of-life mod for Among Us, currently
-targeting **AU 2026.6.5** on **Steam** (also compatible back to 2025.11.18).
+targeting the **AU "Judge" update (2026.8.18)** on **Steam** (also compatible
+back to 2025.11.18).
 
 This project is a **fork of [BetterAmongUs](https://github.com/D1GQ/BetterAmongUs)
 by D1GQ**, distributed under the **GNU General Public License v3.0** in
@@ -21,8 +22,13 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 ## What's different from upstream BetterAmongUs
 
-- **AU 2026.6.5 compatibility** — version array, build references, and
-  Harmony bindings updated for current Among Us.
+- **AU 2026.8.18 "Judge" compatibility** — version array, build references,
+  and Harmony bindings updated for current Among Us.
+- **Judge anti-cheat** — catches a **fake-Judge vote overrule** (a non-Judge
+  queuing `QueueOverruleVotes`) and a **non-host forging `VotingComplete`**,
+  both of which cheat menus use to hijack meetings. Neither exists upstream.
+- **No unknown-RPC popup spam** — an unregistered RPC is reported once per
+  player instead of flooding the host with dozens of popups.
 - **Vanilla-server safety** — the BAU custom-RPC handshake and per-target
   role-desync are gated off on official Innersloth servers. Both
   patterns trigger Innersloth's 2026.x anti-abuse system and result in
@@ -57,11 +63,11 @@ accordance with the upstream license. See `LICENSE` for the full text.
 
 1. Install BepInEx 6 IL2CPP for Among Us
 2. Launch AU once with BepInEx to generate interop assemblies
-3. Download `GreaterAmongUs-v1.4.1.dll` from the
+3. Download `GreaterAmongUs-v1.4.2.dll` from the
    [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest)
    and drop it into `Among Us\BepInEx\plugins\`
 4. Launch Among Us — version banner should read
-   `GreaterAmongUs v1.4.1 …` in the main menu
+   `GreaterAmongUs v1.4.2 …` in the main menu
 
 ### Option 2 — easy drag-and-drop bundle (no separate BepInEx install)
 
@@ -74,7 +80,7 @@ Best for most players — this all-in-one zip already includes BepInEx, so
 you don't have to set anything up.
 
 1. **Close Among Us** if it's running.
-2. Download **`GreaterAmongUs-v1.4.1-Steam.AmongUs-Folder.zip`** from the
+2. Download **`GreaterAmongUs-v1.4.2-Steam.AmongUs-Folder.zip`** from the
    [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest).
 3. Open your Among Us folder — in Steam: right-click **Among Us → Manage →
    Browse local files** (usually
@@ -84,7 +90,7 @@ you don't have to set anything up.
    you're only adding files, not deleting any.
 5. Launch Among Us. **The first launch opens vanilla — close it and reopen
    once** (see the note above). After that, the main menu reads
-   `GreaterAmongUs v1.4.1` on every launch (a black console window may
+   `GreaterAmongUs v1.4.2` on every launch (a black console window may
    appear — that's normal, leave it open).
 
 The bundle only adds the `BepInEx` and `dotnet` folders plus

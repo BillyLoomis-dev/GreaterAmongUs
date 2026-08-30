@@ -183,7 +183,13 @@ internal static class GameSummaryPatch
         var themeColor = Utils.GetTeamHexColor(playerData.Role.TeamType);
         var theme = (string text) => $"<color={themeColor}>{text}</color>";
 
-        var roleName = theme(playerData.RoleType.GetRoleName());
+        // Dead players carry a ghost role (Crewmate/Impostor ghost, Guardian Angel), which hides their real
+        // role. Use the role captured at death (DeadDisplayRole) so the post-game summary shows their TRUE
+        // role -- a dead Judge reads "(Judge)", a dead Engineer "(Engineer)", etc.
+        var displayRole = playerData.RoleType.IsGhostRole()
+            ? (playerData.BetterData()?.RoleInfo?.DeadDisplayRole ?? playerData.RoleType)
+            : playerData.RoleType;
+        var roleName = theme(displayRole.GetRoleName());
 
         if (playerData.Role.IsImpostor)
         {

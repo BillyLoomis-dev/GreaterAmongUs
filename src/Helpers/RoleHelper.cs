@@ -29,7 +29,28 @@ internal static class RoleHelper
     internal static RoleBehaviour? GetBehaviourPrefab(this RoleTypes role)
     {
         var lookup = roleLookup.Value;
-        return lookup.TryGetValue(role, out var behaviour) ? behaviour : null;
+        if (lookup.TryGetValue(role, out var behaviour))
+        {
+            return behaviour;
+        }
+
+        // Cache miss: the lazy lookup can be built before every role registers (e.g. Judge on the
+        // 2026.8.18 update). Re-query the live role list once and cache it, so we never return null for
+        // a role that actually exists -- otherwise callers like IsImpostorTeam NPE on it every frame.
+        var manager = RoleManager.Instance;
+        if (manager != null && manager.AllRoles != null)
+        {
+            foreach (var r in manager.AllRoles)
+            {
+                if (r != null && r.Role == role)
+                {
+                    lookup[role] = r;
+                    return r;
+                }
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -38,7 +59,7 @@ internal static class RoleHelper
     /// <param name="role">The role type to check.</param>
     /// <returns>True if the role is part of the impostor team, false otherwise.</returns>
     internal static bool IsImpostorRole(this RoleTypes role) =>
-        role.GetBehaviourPrefab().TeamType is RoleTeamTypes.Impostor;
+        role.GetBehaviourPrefab()?.TeamType is RoleTeamTypes.Impostor;
 
     /// <summary>
     /// Determines whether the specified role is considered a ghost role.
@@ -77,6 +98,14 @@ internal static class RoleHelper
         if (RoleColor.TryGetValue(role, out var color))
         {
             return color;
+        }
+
+        // Durable fallback: any role not explicitly mapped (e.g. Judge, and any future role) uses the
+        // game's own role color, so it renders correctly without needing a hardcoded entry per update.
+        var prefab = role.GetBehaviourPrefab();
+        if (prefab != null)
+        {
+            return prefab.NameColor.ColorToHex();
         }
 
         return string.Empty;

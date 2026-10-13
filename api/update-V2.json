@@ -1,5 +1,5 @@
 {
-  "valid": false,
-  "dllLink": "",
-  "version": "1.3.4"
+  "valid": true,
+  "dllLink": "https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/download/v1.5.0/GreaterAmongUs.dll",
+  "version": "1.5.0"
 }

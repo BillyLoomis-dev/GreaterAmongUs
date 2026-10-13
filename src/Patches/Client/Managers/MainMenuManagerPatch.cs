@@ -46,11 +46,12 @@ internal static class MainMenuManagerPatch
             sizer.transform.localPosition = new Vector3(sizer.transform.localPosition.x, sizer.transform.localPosition.y - 0.035f, sizer.transform.localPosition.z);
             sizer.transform.position = new Vector3(sizer.transform.position.x, sizer.transform.position.y, -0.5f);
 
-            // Scale down the logo slightly
-            logo.transform.localScale = new Vector3(0.003f, 0.0025f, 0f);
+            // Scale down the logo. Y is 10% lower than upstream (0.0025 -> 0.00225) so the
+            // taller GreaterAmongUs image isn't clipped by the menu UI.
+            logo.transform.localScale = new Vector3(0.003f, 0.00225f, 0f);
 
-            // Replace Among Us sprite with Better Among Us logo
-            logo.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("BetterAmongUs.Resources.Images.BetterAmongUs-Logo.png", 1f);
+            // Main menu uses the smaller GreaterAmongUs-MainMenu.png; the big logo is only for the splash screen.
+            logo.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("BetterAmongUs.Resources.Images.GreaterAmongUs-MainMenu.png", 1f);
         }
 
         // Apply custom colors to main menu background

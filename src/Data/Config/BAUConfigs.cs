@@ -11,77 +11,77 @@ internal static class BAUConfigs
     /// <summary>
     /// Gets the configuration entry for anti-cheat setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> AntiCheat { get; } = new("Better Options", "AntiCheat", true);
+    internal static BAUConfigEntry<bool> AntiCheat { get; } = new("Greater Options", "AntiCheat", true);
 
     /// <summary>
     /// Gets the configuration entry for sending Better RPC setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> SendBetterRpc { get; } = new("Better Options", "SendBetterRpc", true);
+    internal static BAUConfigEntry<bool> SendBetterRpc { get; } = new("Greater Options", "SendBetterRpc", false);
 
     /// <summary>
     /// Gets the configuration entry for better notifications setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> BetterNotifications { get; } = new("Better Options", "BetterNotifications", true);
+    internal static BAUConfigEntry<bool> BetterNotifications { get; } = new("Greater Options", "BetterNotifications", true);
 
     /// <summary>
     /// Gets the configuration entry for force own language setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> ForceOwnLanguage { get; } = new("Better Options", "ForceOwnLanguage", false);
+    internal static BAUConfigEntry<bool> ForceOwnLanguage { get; } = new("Greater Options", "ForceOwnLanguage", false);
 
     /// <summary>
     /// Gets the configuration entry for chat dark mode setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> ChatDarkMode { get; } = new("Better Options", "ChatDarkMode", true);
+    internal static BAUConfigEntry<bool> ChatDarkMode { get; } = new("Greater Options", "ChatDarkMode", true);
 
     /// <summary>
     /// Gets the configuration entry for chat in gameplay setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> ChatInGameplay { get; } = new("Better Options", "ChatInGameplay", true);
+    internal static BAUConfigEntry<bool> ChatInGameplay { get; } = new("Greater Options", "ChatInGameplay", false);
 
     /// <summary>
     /// Gets the configuration entry for lobby player info setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> LobbyPlayerInfo { get; } = new("Better Options", "LobbyPlayerInfo", true);
+    internal static BAUConfigEntry<bool> LobbyPlayerInfo { get; } = new("Greater Options", "LobbyPlayerInfo", true);
 
     /// <summary>
     /// Gets the configuration entry for disable lobby theme setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> DisableLobbyTheme { get; } = new("Better Options", "DisableLobbyTheme", true);
+    internal static BAUConfigEntry<bool> DisableLobbyTheme { get; } = new("Greater Options", "DisableLobbyTheme", true);
 
     /// <summary>
     /// Gets the configuration entry for unlock FPS setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> UnlockFPS { get; } = new("Better Options", "UnlockFPS", false);
+    internal static BAUConfigEntry<bool> UnlockFPS { get; } = new("Greater Options", "UnlockFPS", false);
 
     /// <summary>
     /// Gets the configuration entry for show FPS setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> ShowFPS { get; } = new("Better Options", "ShowFPS", false);
+    internal static BAUConfigEntry<bool> ShowFPS { get; } = new("Greater Options", "ShowFPS", false);
 
     /// <summary>
     /// Gets the configuration entry for minimap icons setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> MinimapIcons { get; } = new("Better Options", "MinimapIcons", true);
+    internal static BAUConfigEntry<bool> MinimapIcons { get; } = new("Greater Options", "MinimapIcons", true);
 
     /// <summary>
     /// Gets the configuration entry for new minimap colors setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> BetterMinimapColors { get; } = new("Better Options", "BetterMinimapColors", true);
+    internal static BAUConfigEntry<bool> BetterMinimapColors { get; } = new("Greater Options", "BetterMinimapColors", true);
 
     /// <summary>
     /// Gets the configuration entry for vent color groups setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> VentColorGroups { get; } = new("Better Options", "VentColorGroups", true);
+    internal static BAUConfigEntry<bool> VentColorGroups { get; } = new("Greater Options", "VentColorGroups", true);
 
     /// <summary>
     /// Gets the configuration entry for better color blind text setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> BetterColorblindText { get; } = new("Better Options", "BetterColorblindText", true);
+    internal static BAUConfigEntry<bool> BetterColorblindText { get; } = new("Greater Options", "BetterColorblindText", true);
 
     /// <summary>
     /// Gets the configuration entry for compress settings file setting.
     /// </summary>
-    internal static BAUConfigEntry<bool> CompressSettingFiles { get; } = new("Better Options", "CompressSettingFiles", false);
+    internal static BAUConfigEntry<bool> CompressSettingFiles { get; } = new("Greater Options", "CompressSettingFiles", false);
 
     /// <summary>
     /// Gets the configuration entry for command prefix setting.

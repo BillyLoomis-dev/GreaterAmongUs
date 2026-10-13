@@ -22,7 +22,8 @@ internal sealed class SendChatHandler : RPCHandler
             if (TextFileHandler.CompareStringRegexMatches(BetterDataManager.Files.banChatListFilePath, text))
             {
                 var ban = BetterGameSettings.UseBanChatListBan.GetBool();
-                sender.Kick(ban, $"has been {(ban ? "banned" : "kicked")} due to\nchat message matching a banned pattern!");
+                // Blocked by host safety (automatic kick); the host gets a warning instead.
+                sender.Kick(ban, "sent a chat message matching your ban chat list.");
             }
         }
     }

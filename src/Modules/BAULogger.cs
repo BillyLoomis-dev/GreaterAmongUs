@@ -30,7 +30,7 @@ internal sealed class BAULogger(ManualLogSource manualLogSource)
             if (logConsole)
             {
                 ConsoleManager.SetConsoleColor(color);
-                ConsoleManager.ConsoleStream.WriteLine($"{DateTime.Now:HH:mm} BetterAmongUs[{tag}]: {Utils.RemoveHtmlText(info)}");
+                ConsoleManager.ConsoleStream.WriteLine($"{DateTime.Now:HH:mm} {BAUPlugin.ModInfo.PLUGIN_NAME}[{tag}]: {Utils.RemoveHtmlText(info)}");
             }
         }
         catch { }
@@ -184,8 +184,12 @@ internal class CustomLogListener(BAULogger bauLogger) : ILogListener
     /// <param name="eventArgs">The log event arguments.</param>
     public void LogEvent(object sender, LogEventArgs eventArgs)
     {
+        // Skip Unity's own log spam AND events from our OWN log source. Our source is named
+        // after the plugin GUID; if it isn't skipped, this listener re-logs its own output
+        // forever and the game freezes. (Upstream matched the text "betteramongus", which no
+        // longer matches after the GUID rename, so compare against the GUID itself.)
         if (eventArgs.Source.SourceName.ToLower().Contains("unity")
-            || eventArgs.Source.SourceName.ToLower().Contains("betteramongus"))
+            || eventArgs.Source.SourceName.Equals(BAUPlugin.ModInfo.PLUGIN_GUID, StringComparison.OrdinalIgnoreCase))
             return;
 
         if (eventArgs.Level is LogLevel.None or LogLevel.Info)

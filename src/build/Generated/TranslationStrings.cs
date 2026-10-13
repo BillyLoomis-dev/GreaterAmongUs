@@ -34,12 +34,12 @@ public static class TranslationStrings
     }
 
     /// <summary>
-    /// Base Translation: BAU
+    /// Base Translation: GAU
     /// </summary>
     public static readonly TranslationString BAU = new("BAU");
 
     /// <summary>
-    /// Base Translation: BetterAmongUs
+    /// Base Translation: Greater Among Us
     /// </summary>
     public static readonly TranslationString BetterAmongUs = new("BetterAmongUs");
 
@@ -139,7 +139,7 @@ public static class TranslationStrings
     public static readonly TranslationString Player_PlatformHidden = new("Player.PlatformHidden");
 
     /// <summary>
-    /// Base Translation: Better User
+    /// Base Translation: Greater User
     /// </summary>
     public static readonly TranslationString Player_BetterUser = new("Player.BetterUser");
 
@@ -249,7 +249,7 @@ public static class TranslationStrings
     public static readonly TranslationString WelcomeMsg_BAUDescription1 = new("WelcomeMsg.BAUDescription1");
 
     /// <summary>
-    /// Base Translation: Better Options
+    /// Base Translation: Greater Options
     /// </summary>
     public static readonly TranslationString BetterOption = new("BetterOption");
 
@@ -269,12 +269,12 @@ public static class TranslationStrings
     public static readonly TranslationString BetterOption_AntiCheat = new("BetterOption.AntiCheat");
 
     /// <summary>
-    /// Base Translation: &lt;color=#4f92ff&gt;Send Better RPC&lt;/color&gt;
+    /// Base Translation: &lt;color=#4f92ff&gt;Send Greater RPC&lt;/color&gt;
     /// </summary>
     public static readonly TranslationString BetterOption_SendBetterRpc = new("BetterOption.SendBetterRpc");
 
     /// <summary>
-    /// Base Translation: &lt;color=#4f92ff&gt;Better Notifications&lt;/color&gt;
+    /// Base Translation: &lt;color=#4f92ff&gt;Greater Notifications&lt;/color&gt;
     /// </summary>
     public static readonly TranslationString BetterOption_BetterNotifications = new("BetterOption.BetterNotifications");
 
@@ -349,12 +349,12 @@ public static class TranslationStrings
     public static readonly TranslationString BetterOption_ToVanilla = new("BetterOption.ToVanilla");
 
     /// <summary>
-    /// Base Translation: Better Settings
+    /// Base Translation: Greater Settings
     /// </summary>
     public static readonly TranslationString BetterSetting = new("BetterSetting");
 
     /// <summary>
-    /// Base Translation: Edit better settings for your lobby and gameplay.
+    /// Base Translation: Edit greater settings for your lobby and gameplay.
     /// </summary>
     public static readonly TranslationString BetterSetting_Description = new("BetterSetting.Description");
 
@@ -652,6 +652,16 @@ public static class TranslationStrings
     /// Base Translation: MMC Chat
     /// </summary>
     public static readonly TranslationString AntiCheat_Cheat_MMCChat = new("AntiCheat.Cheat.MMCChat");
+
+    /// <summary>
+    /// Base Translation: GoatNet Client
+    /// </summary>
+    public static readonly TranslationString AntiCheat_Cheat_GoatNet = new("AntiCheat.Cheat.GoatNet");
+
+    /// <summary>
+    /// Base Translation: HostGuard mod detected on {0}
+    /// </summary>
+    public static readonly TranslationString AntiCheat_Mod_HostGuard = new("AntiCheat.Mod.HostGuard");
 
     /// <summary>
     /// Base Translation: Invalid Friend Code

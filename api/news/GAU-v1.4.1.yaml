@@ -1,0 +1,25 @@
+^show: true
+^type: 1
+^title: GreaterAmongUs v1.4.1
+^subtitle: Among Us 2026.6.5 compatibility update
+^listtitle: GAU v1.4.1
+^date: 2026-06-06T12:00:00.0000000Z
+
+^content-en_US:
+ # GreaterAmongUs v1.4.1
+
+ Compatibility update for the latest **Among Us 2026.6.5** release.
+ ---
+
+ ## Change Log
+
+ #### Compatibility
+ - **Among Us 2026.6.5 support** added to the supported-version list (no more "above supported versions" warning).
+ - Rebuilt against the current game's IL2CPP interop. Verified the RPC table and all anti-cheat hook signatures are unchanged, so detection works exactly as before.
+
+ #### Maintenance
+ - In-game updater and news now read from the GreaterAmongUs repository instead of upstream, so future fork releases notify you in-game.
+ ---
+ ## [Github](https://github.com/BillyLoomis-dev/GreaterAmongUs)
+
+ Based on BetterAmongUs by D1GQ - GPL v3.0

@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using BetterAmongUs.Modules;
+using BetterAmongUs.MonoScripts.Extended;
 
 namespace BetterAmongUs.Utilities;
 
@@ -9,18 +10,14 @@ namespace BetterAmongUs.Utilities;
 internal static class RoleUtils
 {
     /// <summary>
-    /// Provides a lazily initialized lookup dictionary that maps each role type to its corresponding role behavior.
+    /// Role type to role prefab lookup, filled from RoleManager.AllRoles on demand.
     /// </summary>
-    private static readonly Lazy<Dictionary<RoleTypes, RoleBehaviour>> roleLookup =
-        new(() =>
-        {
-            var dict = new Dictionary<RoleTypes, RoleBehaviour>();
-            foreach (var r in RoleManager.Instance.AllRoles)
-            {
-                dict[r.Role] = r;
-            }
-            return dict;
-        });
+    /// <remarks>
+    /// GreaterAmongUs: not a Lazy. A Lazy built before every role registered (seen with Judge)
+    /// kept returning null for that role forever, and a Lazy built while RoleManager didn't exist
+    /// yet cached the exception. A miss now simply re-reads the live role list.
+    /// </remarks>
+    private static readonly Dictionary<RoleTypes, RoleBehaviour> roleLookup = [];
 
     /// <summary>
     /// Gets the RoleBehaviour associated with a RoleTypes enum value.
@@ -29,8 +26,27 @@ internal static class RoleUtils
     /// <returns>The RoleBehaviour if found, null otherwise.</returns>
     internal static RoleBehaviour? GetBehaviourPrefab(this RoleTypes role)
     {
-        var lookup = roleLookup.Value;
-        return lookup.TryGetValue(role, out var behaviour) ? behaviour : null;
+        if (roleLookup.TryGetValue(role, out var behaviour) && behaviour != null)
+        {
+            return behaviour;
+        }
+
+        if (!RoleManager.InstanceExists)
+            return null;
+
+        var allRoles = RoleManager.Instance.AllRoles;
+        if (allRoles == null)
+            return null;
+
+        foreach (var r in allRoles)
+        {
+            if (r != null)
+            {
+                roleLookup[r.Role] = r;
+            }
+        }
+
+        return roleLookup.TryGetValue(role, out behaviour) ? behaviour : null;
     }
 
     /// <summary>
@@ -38,8 +54,11 @@ internal static class RoleUtils
     /// </summary>
     /// <param name="role">The role type to check.</param>
     /// <returns>True if the role is part of the impostor team, false otherwise.</returns>
-    internal static bool IsImpostorRole(this RoleTypes role) =>
-        role.GetBehaviourPrefab().TeamType is RoleTeamTypes.Impostor;
+    internal static bool IsImpostorRole(this RoleTypes role)
+    {
+        var prefab = role.GetBehaviourPrefab();
+        return prefab != null && prefab.TeamType is RoleTeamTypes.Impostor;
+    }
 
     /// <summary>
     /// Determines whether the specified role is considered a ghost role.
@@ -80,6 +99,13 @@ internal static class RoleUtils
             return color;
         }
 
+        // Any role without an entry (a future role) uses the game's own role color.
+        var prefab = role.GetBehaviourPrefab();
+        if (prefab != null)
+        {
+            return prefab.NameColor.ColorToHex();
+        }
+
         return "#ffffff";
     }
 
@@ -100,6 +126,13 @@ internal static class RoleUtils
     /// <param name="playerData">The player data to get role information for.</param>
     /// <param name="displayTask">Whether to display the player's task completion progress.</param>
     /// <returns>Returns role info or <see cref="string.Empty"/> if the player's role information cannot be displayed.</returns>
+    /// <remarks>
+    /// Who sees other players' roles (GreaterAmongUs):
+    /// - living players: only themselves and their impostor teammates;
+    /// - dead players and Guardian Angels: everyone (Guardian Angel can't talk to the living);
+    /// - the Influencer (Spirit Guide): nobody else, because their picture messages reach living players.
+    /// Dead viewers also see who judged who (<see cref="JudgeTracker"/>).
+    /// </remarks>
     internal static string GetRoleInfo(this NetworkedPlayerInfo playerData, bool displayTask)
     {
         if (!GameState.IsInGamePlay)
@@ -107,20 +140,29 @@ internal static class RoleUtils
             return string.Empty;
         }
 
-        if (playerData.PlayerId != PlayerControl.LocalPlayer.PlayerId && !playerData.IsImpostorTeammate())
+        if (playerData == null || PlayerControl.LocalPlayer == null || PlayerControl.LocalPlayer.Data == null)
         {
-            if (PlayerControl.LocalPlayer.IsAlive())
-            {
-                return string.Empty;
-            }
-
-            if (PlayerControl.LocalPlayer.IsGhostRole())
-            {
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
-        string roleInfo = playerData.RoleType.GetRoleName().ToColor(playerData.Role.TeamColor);
+        bool canSeeOthers = LocalCanSeeOtherRoles();
+
+        if (playerData.PlayerId != PlayerControl.LocalPlayer.PlayerId && !playerData.IsImpostorTeammate() && !canSeeOthers)
+        {
+            return string.Empty;
+        }
+
+        var displayRole = playerData.GetDisplayRole();
+        var teamColor = playerData.Role != null
+            ? playerData.Role.TeamColor
+            : (displayRole.IsImpostorRole() ? Colors.ImpostorRed : Colors.CrewmateBlue);
+        string roleInfo = displayRole.GetRoleName().ToColor(teamColor);
+
+        // A dead player who got a ghost role: show both, e.g. "Judge > Guardian Angel".
+        if (playerData.RoleType is RoleTypes.GuardianAngel or RoleTypes.SpiritGuide && displayRole != playerData.RoleType)
+        {
+            roleInfo += $" <color=#cbcbcb>></color> {playerData.RoleType.GetRoleName().ToColor(playerData.RoleType.GetRoleHex())}";
+        }
 
         if (!playerData.IsImpostorTeam() && playerData.Tasks.Count > 0)
         {
@@ -136,7 +178,41 @@ internal static class RoleUtils
             }
         }
 
+        roleInfo += JudgeTracker.GetSuffix(playerData.PlayerId, canSeeOthers);
+
         return roleInfo;
+    }
+
+    /// <summary>
+    /// Whether the local player may see other players' roles: dead (including Guardian Angel),
+    /// but not the Influencer (Spirit Guide).
+    /// </summary>
+    internal static bool LocalCanSeeOtherRoles() => JudgeTracker.LocalCanSeeJudgements();
+
+    /// <summary>
+    /// Gets the role to show for a player: their real role, also after death
+    /// (a dead Judge shows "Judge", not "Crewmate").
+    /// </summary>
+    /// <param name="playerData">The player data.</param>
+    /// <returns>The role to display.</returns>
+    internal static RoleTypes GetDisplayRole(this NetworkedPlayerInfo playerData)
+    {
+        var roleType = playerData.RoleType;
+        if (!roleType.IsGhostRole())
+        {
+            return roleType;
+        }
+
+        var extended = playerData.ExtendedData();
+        if (extended != null && extended.RoleInfo != null && extended.RoleInfo.HasDeadDisplayRole)
+        {
+            return extended.RoleInfo.DeadDisplayRole;
+        }
+
+        // Role at death unknown: fall back to the plain team role.
+        return roleType is RoleTypes.ImpostorGhost ? RoleTypes.Impostor
+            : roleType is RoleTypes.CrewmateGhost ? RoleTypes.Crewmate
+            : roleType;
     }
 
     /// <summary>

@@ -32,27 +32,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup .NET 6
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '6.0.x'
-    
-    - name: Install PowerShell Core
-      run: |
-        # Update package lists
-        sudo apt-get update
-        # Install PowerShell Core
-        sudo apt-get install -y powershell
-        # Verify installation
-        pwsh --version
-        # Create symlink for compatibility with scripts expecting powershell.exe
-        sudo ln -s /usr/bin/pwsh /usr/local/bin/powershell.exe || true
-    
+        dotnet-version: |
+          6.0.x
+          9.0.x
+
     - name: Build
-      run: dotnet build src/*.csproj --configuration Release -p:CopyToGame=false
-    
+      run: dotnet build src/BetterAmongUs.csproj --configuration Release -p:CopyToGame=false
+
     - name: Archive DLL file
       uses: actions/upload-artifact@v4
       with:
-        name: BetterAmongUs.dll
-        path: src/bin/Release/net6.0/BetterAmongUs.dll
+        name: GreaterAmongUs.dll
+        path: src/bin/Release/net6.0/GreaterAmongUs.dll

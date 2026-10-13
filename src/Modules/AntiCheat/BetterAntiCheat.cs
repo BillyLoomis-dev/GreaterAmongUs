@@ -39,8 +39,24 @@ internal static class BetterAntiCheat
     }
 
     /// <summary>
+    /// "Unregistered RPC" alerts already shown, per (player, callId). A modded (not necessarily
+    /// cheating) client can spam an unknown RPC thousands of times per game; without this the
+    /// host got an alert every time.
+    /// </summary>
+    private static readonly HashSet<(byte player, byte callId)> _noticedUnknownRpc = [];
+
+    /// <summary>
+    /// Forgets the "unregistered RPC" alerts (player ids are reused in every lobby).
+    /// </summary>
+    internal static void ResetUnknownRpcNotices() => _noticedUnknownRpc.Clear();
+
+    /// <summary>
     /// Updates anti-cheat checks for all players in the game.
     /// </summary>
+    /// <remarks>
+    /// Known cheaters are not kicked automatically (host safety, see PlayerControlUtils.AutomaticKicksEnabled);
+    /// TryKick only logs. The lobby warning tells the host when one joins.
+    /// </remarks>
     internal static void Update()
     {
         if (GameState.IsHost && GameState.IsInGame)
@@ -145,7 +161,9 @@ internal static class BetterAntiCheat
 
             if (TrustedRPCs(callId) != true && !player.IsHost())
             {
-                BetterNotificationManager.NotifyCheat(player, $"Unregistered RPC received: {callId}");
+                // Once per (player, callId) so a spammed unknown RPC can't flood the host with alerts.
+                if (_noticedUnknownRpc.Add((player.PlayerId, callId)))
+                    BetterNotificationManager.NotifyCheat(player, $"Unregistered RPC received: {callId}");
                 reader.Recycle();
                 return false;
             }

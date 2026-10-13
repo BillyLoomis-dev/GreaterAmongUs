@@ -1,0 +1,39 @@
+^show: true
+^type: 1
+^title: GreaterAmongUs v1.5.0
+^subtitle: 64-bit update, Judge and Influencer anti-cheat
+^listtitle: GAU v1.5.0
+^date: 2026-10-13T12:00:00.0000000Z
+
+^content-en_US:
+ # GreaterAmongUs v1.5.0
+
+ Rebuilt on **BetterAmongUs 1.3.4** for the current 64-bit **Among Us 2026.9.29**, with every GreaterAmongUs feature kept.
+ ---
+
+ ## Change Log
+
+ #### Judge and Influencer
+ - **Dead players see who judged who**: "judging" live during the meeting, then "judged X" / "judged by Y" for the rest of the game. Also in the end-of-game summary.
+ - **Fake Judge overrule** (not a living Judge) is blocked and reported.
+ - **Forged meeting results** (force skip, force eject, force-close) are blocked when you host.
+ - **Fake Influencer messages** (pictures while nobody is an Influencer) are blocked.
+ - Dead players see a dead player's real role (a dead Judge shows "Judge").
+
+ #### Anti-cheat
+ - Sabotage cheats are reported with the player's name; accidental timing races are only blocked, not reported.
+ - The same player caught again for the same thing counts up on one alert instead of adding new ones.
+ - Your ban lists now warn (CTRL+Y) instead of trying to kick.
+ - Known-cheater lobby warning also works when you are not the host.
+
+ #### Host safety (unchanged)
+ - No automatic kicks or bans. Use /kick or the game's buttons.
+ - No mod handshake on official servers.
+
+ #### Fixes
+ - Roles added by game updates no longer show as missing; new roles use the game's own color.
+ - Slow-loading players are no longer left invisible.
+ ---
+ ## [Github](https://github.com/BillyLoomis-dev/GreaterAmongUs)
+
+ Based on BetterAmongUs by D1GQ - GPL v3.0

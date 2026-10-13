@@ -1,141 +1,127 @@
-# ♻ BetterAmongUs ♻
+# GreaterAmongUs
 
-A client-sided mod that enhances the experience for the popular game Among Us!
+A client-sided anti-cheat and quality-of-life mod for **Among Us** (64-bit, **2026.9.29**), made for the
+**Steam** version.
 
-<img width="700" height="500" alt="BetterAmongUs-Logo" src="/assets/BetterAmongUs-Logo.png" />
+GreaterAmongUs is a **fork of [BetterAmongUs](https://github.com/D1GQ/BetterAmongUs) by D1GQ**, now based on
+BetterAmongUs **1.3.4**, distributed under the **GNU General Public License v3.0** like the original.
+See `LICENSE` for the full text.
 
-</p>
-<p align="center">
+## What GreaterAmongUs adds to BetterAmongUs
 
-<div style="text-align: center;">
-    <a href="https://discord.gg/vjYrXpzNAn" target="_blank">
-        <img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6" width="200" height="50"/>
-    </a>
-</div>
+Everything BetterAmongUs 1.3.4 has, plus:
+
+### Judge and Influencer
+- **Dead players see who judged who.** During a meeting a dead player sees `(judging Bob)` on the Judge and
+  `(being judged by Alice)` on the target. After the meeting it reads `(judged Bob)` / `(judged by Alice)`
+  for the rest of the game, above heads and in meetings. The Judge always sees their own choice.
+  Living players never see it, and neither does the Influencer (their pictures reach living players).
+  The end-of-game summary shows it to everyone.
+  BetterAmongUs only recorded this on the clients where the overrule screen ran and never displayed it;
+  GreaterAmongUs reads the overrule list the host sends to every player, so it works for everyone.
+- **Fake Judge overrule** blocked and reported: a vote overrule from a player who isn't a living Judge.
+  Checked against the role the host assigned, so a cheat that only changes its own role can't pass.
+- **Forged meeting result** blocked (host): a non-host sending `VotingComplete` (force skip / force eject) or
+  `CloseMeeting` (force-close the meeting).
+- **Forged Judge result** reported (non-host): a meeting result that claims a Judge overrule when no living
+  Judge is in the game.
+- **Fake Influencer message** blocked: picture messages that arrive while nobody in the game is an Influencer.
+  These four meeting/map checks never ran in BetterAmongUs (those messages bypassed its anti-cheat).
+- Dead players and Guardian Angels see a dead player's real role (a dead Judge shows `Judge`, a Judge who
+  became a Guardian Angel shows `Judge > Guardian Angel`), also in the end-of-game summary.
+
+### Host safety
+- **No automatic kicks or bans.** Innersloth's anti-abuse system has banned the *host* after automatic kicks,
+  so detections alert and are saved instead. Your own `/kick` command and the game's kick/ban buttons still work.
+  When an automatic kick is blocked for a non-cheat reason (ban chat list, minimum level), you get a warning.
+- **No handshake on official servers.** The BetterAmongUs handshake is never sent on Innersloth servers
+  (they disconnected players for it). `Send Greater RPC` is off by default.
+- Players who take over 25 seconds to load are no longer left invisible; you get a warning instead.
+
+### Alerts
+- **Sticky cheat alerts.** Each detection stays on screen (up to 60 minutes) and stacks, newest on top.
+  **CTRL+P** dismisses a cheat alert. The same player caught again for the same thing shows `(x2)`, `(x3)`...
+  instead of burying other alerts.
+- **Known cheater joined.** When a player saved in your cheat data joins, you see their name, friend code,
+  hashed PUID and the old reason. **CTRL+Y** dismisses it. Works as host *and* as a normal player.
+- **Ban lists warn instead of kick.** A player on your ban player list / ban name list gets a CTRL+Y warning.
+- Alerts you didn't dismiss come back in the next lobby. No alert sounds.
+- "Unregistered RPC" is reported once per player and RPC, not on every message.
+
+### More detections
+- **GoatNet** client (RPC 154), **ModMenuCrew** role signature (RPC 205; BetterAmongUs already catches 201/202),
+  **HostGuard** presence notice (RPC 176, info only, never flagged).
+- **Sabotage cheats are named.** A sabotage/fix that a normal client can never send (a crewmate sabotaging,
+  a "direct sabotage" byte, kicking everyone out of vents, fixing from far away) is reported with the player's
+  name and what they did. Things that can happen by accident (two players pressing at the same moment, lag)
+  are still blocked but only logged, so nobody gets flagged for a timing race.
+- The level check stays opt-in (off by default): real players can be above level 1000 from old XP glitches.
+
+### Smaller things
+- Lazily-built role list fixed: roles added in a game update (like Judge) no longer show as missing.
+- New roles automatically use the game's own role color.
+- Logger no longer freezes the game after the plugin rename (it used to re-log its own output forever).
+- Chat during gameplay is off by default.
+- Own data folder `Greater_Data`, own plugin id, in-game updater and news read this repository.
 
 ## Installation
-### For First-Time Installation:
 
-1. **Download the Correct Version**: 
-   - Go to the [Releases](https://github.com/D1GQ/BetterAmongUs/releases) page
-   - **Choose the correct zip file** for your platform:
-     - Steam and itch.io users: `BAU-SteamItchio-Version.zip `
-     - Epic Games and Microsoft Store users: `BAU-EpicMsStore-Version.zip`
+### Option 1 - plugin only (you already run BetterAmongUs or BepInEx 6 IL2CPP)
 
-2. **Extract the Files**:
-   - Extract the downloaded zip file to a temporary location
+1. Close Among Us.
+2. Download `GreaterAmongUs.dll` from the
+   [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest).
+3. Put it in `Among Us\BepInEx\plugins\`. Remove `BetterAmongUs.dll` and any older GreaterAmongUs DLL
+   from that folder so only one is loaded.
+4. Start Among Us. The main menu shows `♻GAU♻ v1.5.0`.
 
-3. **Install to Among Us Folder**:
-   - Navigate to your Among Us installation directory
-   - Copy ALL files and folders from the extracted zip into your Among Us folder
-   - Overwrite any existing files when prompted
+### Option 2 - everything in one zip (no BepInEx yet)
 
-4. **Verify Installation**:
-   - Launch Among Us
-   - If installed correctly, you should see "BetterAmongUs" in the main menu
+1. Close Among Us.
+2. Download the BetterAmongUs 1.3.4 zip for your platform from the
+   [BetterAmongUs releases](https://github.com/D1GQ/BetterAmongUs/releases) and extract **everything** into your
+   Among Us folder (Steam: right-click Among Us > Manage > Browse local files).
+3. In `Among Us\BepInEx\plugins\`, replace `BetterAmongUs.dll` with `GreaterAmongUs.dll` (Option 1, step 2).
+4. Start Among Us. **The first start can open plain Among Us while BepInEx sets itself up - close it and start
+   it again.** You only do this once.
 
-### For Updating an Existing Installation:
+To uninstall, delete `BepInEx`, `dotnet`, `winhttp.dll` and `doorstop_config.ini` from the game folder.
 
-1. **Download the DLL File**:
-   - Go to the [Releases](https://github.com/D1GQ/BetterAmongUs/releases) page
-   - Download just the `BetterAmongUs.dll` file
+## Building from source
 
-2. **Replace the Old DLL**:
-   - Navigate to your Among Us installation folder
-   - Go to: `BepInEx/plugins/`
-   - Replace the existing `BetterAmongUs.dll` with the newly downloaded one
+Requirements: .NET SDK 9 or newer (the project targets .NET 6), internet for NuGet.
 
-3. **Verify Update**:
-   - Launch Among Us
-   - Check that the mod version has been updated in the main menu
-
-### Linux Setup (Steam Only)
-
-Use Proton (9.0+) with these launch options:
-```
-WINEDLLOVERRIDES="winhttp=n,b" PROTON_NO_ESYNC=1 %command%
+```bash
+cd src
+dotnet build -c Release
 ```
 
-**Setup Steps:**
-1. Enable Proton in Steam → Properties → Compatibility → Force Proton 9.0+
-2. Copy all mod files into your Among Us directory
-3. Add the launch options above
-4. Install Protontricks and set `winhttp` as a library override in winecfg
+The DLL is `src\bin\Release\net6.0\GreaterAmongUs.dll`.
 
-## Supported Platforms
-- ✅ Steam
-- ✅ Linux + Steam
-- ✅ Epic Games
-- ✅ Microsoft Store
-- ✅ itch.io
-- ✅ Android
-- ❌ iOS
-- ❌ Xbox/Playstation/Switch
+By default the game libraries come from the `AmongUs.GameLibs.Steam` 2026.9.29 NuGet package. If a game update
+is out before that package, build against your own game instead (start Among Us once with BepInEx first):
 
-## Supported Game Versions
-- ✅ AU **v18.0.0** / **v2026.8.18**: (BAU v1.3.3 Hotfix 1) >
-- ✅ AU **v17.2.0** / **v2026.3.17**: (BAU v1.3.3) >
-- ✅ AU **v17.1.0** / **v2025.11.18**: (BAU v1.3.1) >
-- ✅ AU **v17.0.1** / **v2025.10.14**: (BAU v1.3.0) >
-- ✅ AU **v16.1.0** / **v2025.6.10**: (BAU v1.2.0 Beta 1) >
-- ✅ AU **v16.0.0** / **v2025.3.25**: (BAU v1.1.6 Beta 1) >
-- ✅ AU **v2024.11.26**: >
-- ✅ AU **v2024.10.29**: >
-- ✅ AU **v2024.9.4**: >
-- ✅ AU **v2024.8.13**: >
-- ✅ AU **v2024.6.18**: (BAU v1.0.0) >
-- ❌ AU **v2024.3.5**: or Below <
+```bash
+dotnet build -c Release -p:InteropDir="C:\Program Files (x86)\Steam\steamapps\common\Among Us\BepInEx\interop"
+```
 
-## Features
+To have the DLL copied into your game after each build, put your `BepInEx\plugins` folder path in
+`src\build\mod_folder_path`.
 
-BetterAmongUs comes packed with a variety of features designed to improve your gameplay experience:
+## License
 
-- **Built-in Client-Sided Anti-Cheat**: Enjoy a fair game by preventing cheaters from ruining your fun.
-- **Host Enhancements**: Gain more control as a host with additional options and settings.
-- **Better Options**: Customize your game with a range of new and improved options.
-- **Commands**: Utilize a set of commands to manage and enhance gameplay.
-- **Client Improvements**: Experience smoother gameplay with various client-side improvements.
-- **And More!**: Stay tuned for more exciting features coming your way!
-
-<img width="700" height="500" alt="freeplay-promo" src="/assets/freeplay-promo.png" />
-
-## Anti-Cheat
-
-Are you annoyed with pesky cheaters? Well, fear no more! BetterAmongUs has a built-in anti-cheat for both host and non-host players.
-
-### The Anti-Cheat Can:
-- **Check for Invalid Actions/RPCS**: Detect and prevent unauthorized actions and RPC calls.
-- **Cancel Out Invalid Actions/RPCS**: Automatically cancel any suspicious activities detected.
-- **Detect Specific Cheat Clients**: Identify known cheat clients to keep your game fair.
-- **Save Data About Cheaters**: Keep track of detected cheaters for future reference.
-- **And More**: Additional anti-cheat measures to ensure a secure gameplay environment.
-
-## Commands
-
-BetterAmongUs offers a variety of commands to enhance your control over the game:
-
-- `/help` Get help with commands.
-- `/commands` Get a list of all available commands.
-- `/dump` Dump the entire log to the user's desktop.
-- `/player {id}` Get a player's information.
-- `/players` Get all player information.
-- `/setprefix {prefix}` Set the command prefix.
-- `/kick {id}` Kick a player from the game (Host Only!).
-- `/ban {id}` Ban a player from the game (Host Only!).
-- `/endgame` Force end the game (Host Only!).
-- `/removeplayer {identifier}` Remove player from local Anti-Cheat data by (FriendCode, HashPuid).
-- `/removeall` Remove all players from local Anti-Cheat data.
+GPL v3.0, inherited from BetterAmongUs. See `LICENSE`. You may fork, modify and redistribute under the same
+license: keep `LICENSE`, keep copyright notices, publish the source of any binary you distribute, and license
+derivatives under GPL v3.0 (or later).
 
 ## Credits
 
-A huge thank you to everyone who contributed to making BetterAmongUs a reality!
-
-- **Head Developer**: [D1GQ](https://github.com/D1GQ)
-- **Linux Support**: [Nyx](https://github.com/DeveloperNyx)
-
-## Contacts
-betterauofficial@gmail.com
+- **D1GQ** and the BetterAmongUs contributors - the original mod
+  ([upstream repository](https://github.com/D1GQ/BetterAmongUs))
+- **BillyLoomis-dev** - GreaterAmongUs
 
 ## Disclaimer
 
-**BetterAmongUs** is an unofficial, fan-made mod for **Among Us**. It is not affiliated with, endorsed by, or associated with **InnerSloth LLC** or the official **Among Us** game. All trademarks and copyrights related to **Among Us** are the property of **InnerSloth LLC**. This mod is created purely for entertainment purposes and to enhance the gaming experience. Use of this mod is at your own risk.
+GreaterAmongUs (and BetterAmongUs) is an unofficial, fan-made mod for **Among Us**. It is not affiliated with,
+endorsed by, or associated with **Innersloth LLC**. All Among Us trademarks and copyrights belong to
+Innersloth LLC. Use at your own risk.

@@ -24,7 +24,8 @@ internal static class CheckPlayerLevelPatch
                 if (minPlayers > 1 && minPlayers > BAUPlugin.AllPlayerControls.Count)
                     return;
                 
-                __instance.TryKick(setReasonInfo: $" is level {__instance.Data.PlayerLevel}, level must be equal or above {BetterGameSettings.KickLevelBelow.GetInt()} to join");
+                // Blocked by host safety (automatic kick); the host gets a warning instead.
+                __instance.TryKick(setReasonInfo: $"is level {__instance.Data.PlayerLevel}, below your minimum level {BetterGameSettings.KickLevelBelow.GetInt()}.");
             }
         }
     }

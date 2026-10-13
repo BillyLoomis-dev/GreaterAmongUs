@@ -84,8 +84,11 @@ internal sealed class BetterPingTracker : MonoBehaviour
             sb.AppendFormat("{0}: <b>{1}</b>\n", TranslationStrings.Timer.LocalizedString.ToUpper(), $"<{timeColor}>{lobbyTimerDisplay}</color>");
         }
 
-        sb.Append($"<color=#00dbdb><size=75%>BetterAmongUs {BAUPlugin.ModInfo.VERSION_STRING}</size></color>\n");
-        sb.Append($"<color=#8A8A8A>{BAUPlugin.ModInfo.GITHUB}</color>\n".Size(52f));
+        sb.Append($"<color=#00dbdb><size=75%>{BAUPlugin.ModInfo.PLUGIN_NAME} {BAUPlugin.ModInfo.VERSION_STRING}</size></color>\n");
+        sb.Append($"<color=#8A8A8A>{BAUPlugin.ModInfo.GITHUB.Replace("https://", "")}</color>\n".Size(52f));
+        // Upstream credit right under it, so the GPL chain stays visible.
+        sb.Append($"<color=#6A6A6A><size=55%>based on {BAUPlugin.ModInfo.UPSTREAM_NAME}</size></color>\n");
+        sb.Append($"<color=#6A6A6A>{BAUPlugin.ModInfo.UPSTREAM_GITHUB.Replace("https://", "")}</color>\n".Size(45f));
 
         if (BAUConfigs.ShowFPS.Value)
         {

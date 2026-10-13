@@ -84,6 +84,9 @@ internal partial class BAUPlugin : BasePlugin
     {
         Instance = this;
 
+        _manualLogSource = BepInEx.Logging.Logger.CreateLogSource(ModInfo.PLUGIN_GUID);
+        Logger = new BAULogger(_manualLogSource);
+
         try
         {
             foreach (var listener in BepInEx.Logging.Logger.Listeners)
@@ -130,10 +133,12 @@ internal partial class BAUPlugin : BasePlugin
         OutfitData.Initialize();
         SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
 
-        Logger.Log("Better Among Us successfully loaded!");
+        Logger.Log($"{ModInfo.PLUGIN_NAME} successfully loaded!");
 
         string SupportedVersions = string.Join(" ", ModInfo.SupportedAmongUsVersions);
-        Logger.Log($"BetterAmongUs {ModInfo.VERSION_STRING}-{ModInfo.BuildDate} - [{AppVersion} --> {SupportedVersions}] {Utils.GetPlatformName(PlatformData.Platform)}");
+        Logger.Log($"{ModInfo.PLUGIN_NAME} {ModInfo.VERSION_STRING}-{ModInfo.BuildDate} - [{AppVersion} --> {SupportedVersions}] {Utils.GetPlatformName(PlatformData.Platform)}");
+        // Plain ASCII dash (-), not an em dash: the Windows console is CP437/CP1252.
+        Logger.Log($"based on {ModInfo.UPSTREAM_NAME} ({ModInfo.UPSTREAM_GITHUB}) - GPL v3.0");
     }
 
     /// <summary>
@@ -170,12 +175,57 @@ internal partial class BAUPlugin : BasePlugin
         ConsoleManager.ConfigPreventClose.Value = true;
         if (ConsoleManager.ConfigConsoleEnabled.Value) ConsoleManager.DetachConsole();
         ConsoleManager.ConfigConsoleEnabled.Value = false;
-        ConsoleManager.SetConsoleTitle("Among Us - BAU Console");
-        _manualLogSource = BepInEx.Logging.Logger.CreateLogSource(ModInfo.PLUGIN_GUID);
-        Logger = new BAULogger(_manualLogSource);
+        ConsoleManager.SetConsoleTitle($"Among Us - {ModInfo.PLUGIN_NAME} Console");
         var customLogListener = new CustomLogListener(Logger);
         BepInEx.Logging.Logger.Listeners.Add(customLogListener);
         ConsoleManager.SetConsoleColor(ConsoleColor.Green);
-        ConsoleManager.ConsoleStream.WriteLine($".--------------------------------------------------------------------------------.\r\n|  ____       _   _                 _                                  _   _     |\r\n| | __ )  ___| |_| |_ ___ _ __     / \\   _ __ ___   ___  _ __   __ _  | | | |___ |\r\n| |  _ \\ / _ \\ __| __/ _ \\ '__|   / _ \\ | '_ ` _ \\ / _ \\| '_ \\ / _` | | | | / __||\r\n| | |_) |  __/ |_| ||  __/ |     / ___ \\| | | | | | (_) | | | | (_| | | |_| \\__ \\|\r\n| |____/ \\___|\\__|\\__\\___|_|    /_/   \\_\\_| |_| |_|\\___/|_| |_|\\__, |  \\___/|___/|\r\n|                                                              |___/             |\r\n'--------------------------------------------------------------------------------'");
+        WriteBanner();
+    }
+
+    /// <summary>
+    /// Writes the GreaterAmongUs banner (figlet art + credit lines) to the console.
+    /// Every line is padded to the same width so the right border never misaligns.
+    /// </summary>
+    private static void WriteBanner()
+    {
+        string[] artLines =
+        [
+            @"   ____               _              _                            _   _    ",
+            @"  / ___|_ __ ___  __ _| |_ ___ _ __  / \   _ __ ___   ___  _ __  | | | |___ ",
+            @" | |  _| '__/ _ \/ _` | __/ _ \ '__|/ _ \ | '_ ` _ \ / _ \| '_ \ | | | / __|",
+            @" | |_| | | |  __/ (_| | ||  __/ |  / ___ \| | | | | | (_) | | | || |_| \__ \",
+            @"  \____|_|  \___|\__,_|\__\___|_| /_/   \_\_| |_| |_|\___/|_| |_| \___/|___/",
+        ];
+
+        int contentWidth = Math.Max(artLines.Max(l => l.Length) + 2, 80);
+        string h = new('-', contentWidth);
+        string blank = new(' ', contentWidth);
+
+        string Pad(string s) => s.Length >= contentWidth ? s[..contentWidth] : s.PadRight(contentWidth);
+        string Center(string s)
+        {
+            if (s.Length >= contentWidth) return s[..contentWidth];
+            int leftPad = (contentWidth - s.Length) / 2;
+            return s.PadLeft(s.Length + leftPad).PadRight(contentWidth);
+        }
+
+        string url = ModInfo.GITHUB.Replace("https://", "");
+        string urlUp = ModInfo.UPSTREAM_GITHUB.Replace("https://", "");
+        string credit = $"{ModInfo.PLUGIN_NAME} {ModInfo.VERSION_STRING} by {ModInfo.AUTHOR}";
+        string basedOn = $"based on {ModInfo.UPSTREAM_NAME} (GPL v3.0)";
+
+        var stream = ConsoleManager.ConsoleStream;
+        stream.WriteLine($".{h}.");
+        stream.WriteLine($"|{blank}|");
+        foreach (var line in artLines)
+            stream.WriteLine($"|{Pad(line)}|");
+        stream.WriteLine($"|{blank}|");
+        stream.WriteLine($"|{Center(credit)}|");
+        stream.WriteLine($"|{Center(url)}|");
+        stream.WriteLine($"|{blank}|");
+        stream.WriteLine($"|{Center(basedOn)}|");
+        stream.WriteLine($"|{Center(urlUp)}|");
+        stream.WriteLine($"|{blank}|");
+        stream.WriteLine($"'{h}'");
     }
 }

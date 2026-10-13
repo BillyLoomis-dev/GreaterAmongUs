@@ -24,7 +24,7 @@ internal static class BetterDataManager
         /// <summary>
         /// Root directory for BetterAmongUs data.
         /// </summary>
-        internal static readonly string fileFolderPath = Path.Combine(GetPathToAmongUs(), $"Better_Data");
+        internal static readonly string fileFolderPath = Path.Combine(GetPathToAmongUs(), $"Greater_Data");
 
         /// <summary>
         /// Directory for audio overrides files.
@@ -71,6 +71,15 @@ internal static class BetterDataManager
         /// The previous log file path.
         /// </summary>
         internal static readonly string previousLogFilePath_Legacy = Path.Combine(Folders.fileFolderPath, "better-previous-log.txt");
+
+        /// <summary>
+        /// GreaterAmongUs 1.4.x log files (logging now goes to BepInEx's LogOutput.log).
+        /// </summary>
+        internal static readonly string[] greaterLogFilePaths_Legacy =
+        [
+            Path.Combine(Folders.fileFolderPath, "greater-log.txt"),
+            Path.Combine(Folders.fileFolderPath, "greater-previous-log.txt"),
+        ];
 
         /// <summary>
         /// Legacy data file path (BetterData.json).
@@ -212,6 +221,14 @@ internal static class BetterDataManager
         if (File.Exists(Files.previousLogFilePath_Legacy))
         {
             File.Delete(Files.previousLogFilePath_Legacy);
+        }
+
+        foreach (var path in Files.greaterLogFilePaths_Legacy)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
         }
 
         if (File.Exists(Files.settingsFilePath_Legacy))

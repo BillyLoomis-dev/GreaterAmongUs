@@ -38,7 +38,9 @@ internal sealed class HandshakeHandler
     /// </summary>
     private IEnumerator CoWaitSendSecretToPlayer()
     {
-        if (!BAUConfigs.SendBetterRpc.Value) yield break;
+        // GreaterAmongUs: never on Innersloth's vanilla servers. They check RPC payloads and
+        // disconnected players (reason: Hacking) over the extra handshake bytes.
+        if (!BAUConfigs.SendBetterRpc.Value || GameState.IsVanillaServer) yield break;
 
         while (_extendedData.BaseMono == null || _extendedData.BaseMono.Object == null || PlayerControl.LocalPlayer == null)
         {
@@ -56,7 +58,7 @@ internal sealed class HandshakeHandler
     /// </summary>
     internal void ResendSecretToPlayer()
     {
-        if (!BAUConfigs.SendBetterRpc.Value)
+        if (!BAUConfigs.SendBetterRpc.Value || GameState.IsVanillaServer)
             return;
 
         if (HasSendSharedSecret && _extendedData.IsVerifiedBetterUser)
@@ -129,7 +131,7 @@ internal sealed class HandshakeHandler
     // Client sends back to local client
     private void SendSecretHashToSender(int tempKey, int senderClientId)
     {
-        if (!BAUConfigs.SendBetterRpc.Value) return;
+        if (!BAUConfigs.SendBetterRpc.Value || GameState.IsVanillaServer) return;
 
         int hash = SharedSecret.GetSharedSecretHash();
         // Logger.Log($"Sending secret hash: {hash} (tempKey: {tempKey})");

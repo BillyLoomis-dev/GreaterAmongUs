@@ -39,7 +39,8 @@ internal sealed class KickCommand : BaseCommand
 
         if (!player.IsHost())
         {
-            player.Kick(ban);
+            // manual: the host asked for this one, so host safety lets it through.
+            player.Kick(ban, bypassDataCheck: true, manual: true);
         }
     }
 }

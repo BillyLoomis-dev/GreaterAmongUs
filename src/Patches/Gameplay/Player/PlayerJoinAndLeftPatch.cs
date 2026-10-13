@@ -5,6 +5,7 @@ using BetterAmongUs.Data.Config;
 using BetterAmongUs.Generated;
 using BetterAmongUs.Managers;
 using BetterAmongUs.Modules;
+using BetterAmongUs.Modules.AntiCheat;
 using BetterAmongUs.Modules.Support;
 using BetterAmongUs.MonoScripts.Extended;
 using BetterAmongUs.Patches.Gameplay.UI;
@@ -12,15 +13,19 @@ using BetterAmongUs.Patches.Gameplay.UI.Settings;
 using BetterAmongUs.Utilities;
 using HarmonyLib;
 using InnerNet;
+using UnityEngine;
 
 namespace BetterAmongUs.Patches.Gameplay.Player;
 
 [HarmonyPatch]
 internal static class PlayerJoinAndLeftPatch
 {
+    // Players already warned about in this lobby (by client id), so nobody is warned twice.
+    private static readonly HashSet<int> _lobbyWarnedClients = [];
+
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
     [HarmonyPostfix]
-    private static void AmongUsClient_OnGameJoined_Postfix()
+    private static void AmongUsClient_OnGameJoined_Postfix(AmongUsClient __instance)
     {
         // Fix host icon color display on modded servers
         if (!GameState.IsVanillaServer)
@@ -29,6 +34,14 @@ internal static class PlayerJoinAndLeftPatch
             host?.SetColor(-2);
             host?.SetColor(host.CurrentOutfit.ColorId);
         }
+
+        // Client ids and player ids are reused in every lobby.
+        _lobbyWarnedClients.Clear();
+        PlayerControlUtils.ResetKickSafetyLog();
+        BetterAntiCheat.ResetUnknownRpcNotices();
+
+        // Also check the players who were already in the lobby when we joined.
+        __instance.StartCoroutine(CoCheckPlayersAlreadyInLobby());
 
         BAUPlugin.Logger.Log($"Successfully joined {GameCode.IntToGameName(AmongUsClient.Instance.GameId)}", "OnGameJoinedPatch");
     }
@@ -40,47 +53,93 @@ internal static class PlayerJoinAndLeftPatch
         if (GameState.IsHost)
         {
             KickCooldownManager.Trigger();
-            __instance.StartCoroutine(CoCheckPlayerOnJoin(data));
+        }
+
+        // Host AND non-host: everyone gets the known-cheater / ban-list warning.
+        __instance.StartCoroutine(CoCheckPlayerOnJoin(data));
+    }
+
+    private static IEnumerator CoCheckPlayersAlreadyInLobby()
+    {
+        yield return new WaitForSeconds(3f);
+
+        foreach (var player in BAUPlugin.AllPlayerControls.ToArray())
+        {
+            if (player == null || player.Data == null || player.Data.IsIncomplete)
+                continue;
+
+            CheckJoinedPlayer(player);
         }
     }
 
     private static IEnumerator CoCheckPlayerOnJoin(ClientData data)
     {
-        while (!data.InScene || data.Character == null || data.Character.Data == null || data.Character.Data.IsIncomplete)
+        // Wait until the player's data is synced (give up after 30s, e.g. if they left again).
+        float waited = 0f;
+        while (data == null || !data.InScene || data.Character == null || data.Character.Data == null || data.Character.Data.IsIncomplete)
         {
+            waited += Time.deltaTime;
+            if (waited > 30f)
+                yield break;
+
             yield return null;
         }
 
         if (GameState.IsInGame)
         {
-            var player = Utils.PlayerFromClientId(data.Id);
+            CheckJoinedPlayer(data.Character);
+        }
+    }
 
-            // Check if player is in ban list by friend code or PUID
-            if (BetterGameSettings.UseBanPlayerList.GetBool())
+    /// <summary>
+    /// Warns (sticky, CTRL+Y) when a player in the saved cheat data or on your ban lists joins.
+    /// Nobody is kicked automatically (host safety): use /kick if you want them out.
+    /// </summary>
+    private static void CheckJoinedPlayer(PlayerControl player)
+    {
+        try
+        {
+            if (player == null || player.Data == null || player.IsLocalPlayer())
+                return;
+
+            if (!BAUConfigs.AntiCheat.Value)
+                return;
+
+            if (!_lobbyWarnedClients.Add(player.GetClientId()))
+                return;
+
+            string name = player.ExtendedData()?.RealName ?? player.Data.PlayerName ?? "(unknown)";
+            string friendCode = player.Data.FriendCode ?? "";
+            string hashPuid = player.GetHashPuid() ?? "";
+
+            // Known cheater (saved by an earlier detection, in any lobby).
+            var (isKnown, reason) = BetterDataManager.Files.BetterDataFile.CheckPlayerDataWithReason(player.Data);
+            if (isKnown)
             {
-                if (player != null)
-                {
-                    if (TextFileHandler.CompareStringMatch(BetterDataManager.Files.banPlayerListFilePath,
-                            [player.Data.FriendCode, player.GetHashPuid()]))
-                    {
-                        player.Kick(true, TranslationStrings.AntiCheat_BanPlayerListMessage.LocalizedString, bypassDataCheck: true);
-                        yield break;
-                    }
-                }
+                BetterNotificationManager.NotifyKnownCheaterInLobby(name, friendCode, hashPuid, reason);
+                BAUPlugin.Logger.LogCheat($"Known cheater joined: {name} - {friendCode} - {hashPuid} ({reason})");
             }
 
-            // Check if player name matches banned name patterns
-            if (BetterGameSettings.UseBanNameList.GetBool())
+            // Your own ban lists.
+            if (BetterGameSettings.UseBanPlayerList.GetBool()
+                && TextFileHandler.CompareStringMatch(BetterDataManager.Files.banPlayerListFilePath, [friendCode, hashPuid]))
             {
-                if (player != null)
-                {
-                    if (TextFileHandler.CompareStringRegexMatches(BetterDataManager.Files.banNameListFilePath,
-                            player.Data.PlayerName))
-                    {
-                        player.Kick(true, TranslationStrings.AntiCheat_BanNameListMessage.LocalizedString, bypassDataCheck: true);
-                    }
-                }
+                BetterNotificationManager.NotifyLobbyWarning($"banplayer:{friendCode}:{hashPuid}",
+                    $"<color=#ffae00><b>Player on your ban list joined</b></color>\nName: <color=#0097b5>{name}</color>\nFriend code: <color=#cccccc>{friendCode}</color>\n<size=80%>Use /kick if you want them out.</size>");
+                BAUPlugin.Logger.LogCheat($"Ban list (player) match joined: {name} - {friendCode}");
             }
+
+            if (BetterGameSettings.UseBanNameList.GetBool()
+                && TextFileHandler.CompareStringRegexMatches(BetterDataManager.Files.banNameListFilePath, player.Data.PlayerName))
+            {
+                BetterNotificationManager.NotifyLobbyWarning($"banname:{friendCode}:{player.Data.PlayerName}",
+                    $"<color=#ffae00><b>Name on your ban name list joined</b></color>\nName: <color=#0097b5>{name}</color>\nFriend code: <color=#cccccc>{friendCode}</color>\n<size=80%>Use /kick if you want them out.</size>");
+                BAUPlugin.Logger.LogCheat($"Ban list (name) match joined: {name} - {friendCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            BAUPlugin.Logger.Error(ex, "OnPlayerJoinedPatch");
         }
     }
 

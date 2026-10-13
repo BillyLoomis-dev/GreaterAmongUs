@@ -129,6 +129,23 @@ internal static class PlayerControlUtils
     }
 
     /// <summary>
+    /// HOST SAFETY (GreaterAmongUs): automatic kicks/bans are never sent to the server.
+    /// Innersloth's anti-abuse system has banned the HOST after a burst of automatic
+    /// KickPlayer calls (seen in testing: the host got "Banned" from their own lobby right
+    /// after auto-kicking a cheater). Detections still log, pop up and are saved to the
+    /// cheat data, and a known cheater rejoining shows a lobby warning.
+    /// Manual kicks (the /kick command, the game's own kick/ban buttons) still work.
+    /// </summary>
+    internal const bool AutomaticKicksEnabled = false;
+
+    private static readonly HashSet<(int clientId, string reason)> _suppressedKickLog = [];
+
+    /// <summary>
+    /// Clears the "kick blocked" log dedup (client ids restart in every lobby).
+    /// </summary>
+    internal static void ResetKickSafetyLog() => _suppressedKickLog.Clear();
+
+    /// <summary>
     /// Kicks a player from the game as soon as it is safe to do so.
     /// </summary>
     /// <param name="player">The player to kick.</param>
@@ -137,9 +154,11 @@ internal static class PlayerControlUtils
     /// <param name="antiCheatBan">Whether this is an anti-cheat related kick.</param>
     /// <param name="bypassDataCheck">Whether to bypass the data collection check.</param>
     /// <param name="forceBan">Whether to force a ban regardless of settings.</param>
-    internal static void Kick(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false)
+    /// <param name="manual">True only when the host asked for this kick (e.g. /kick). Automatic kicks are blocked.</param>
+    internal static void Kick(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false, bool manual = false)
     {
         if (!player.CanKick(ban, antiCheatBan, bypassDataCheck, forceBan, out var shouldBan)) return;
+        if (IsSuppressed(player, setReasonInfo, manual, antiCheatBan)) return;
         KickCooldownManager.ScheduleAction(() => { player.PerformKick(shouldBan, setReasonInfo, antiCheatBan); });
     }
 
@@ -153,10 +172,14 @@ internal static class PlayerControlUtils
     /// <param name="antiCheatBan">Whether this is an anti-cheat related kick.</param>
     /// <param name="bypassDataCheck">Whether to bypass the data collection check.</param>
     /// <param name="forceBan">Whether to force a ban regardless of settings.</param>
-    internal static void TryKick(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false)
+    /// <param name="manual">True only when the host asked for this kick. Automatic kicks are blocked.</param>
+    internal static void TryKick(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false, bool manual = false)
     {
         if (!KickCooldownManager.IsReady()) return;
         if (!player.CanKick(ban, antiCheatBan, bypassDataCheck, forceBan, out var shouldBan)) return;
+        // Checked before Trigger(): a blocked automatic kick must not keep resetting the
+        // cooldown, or it would starve a manual /kick that is waiting for it.
+        if (IsSuppressed(player, setReasonInfo, manual, antiCheatBan)) return;
         KickCooldownManager.Trigger();
         player.PerformKick(shouldBan, setReasonInfo, antiCheatBan);
     }
@@ -171,10 +194,47 @@ internal static class PlayerControlUtils
     /// <param name="antiCheatBan">Whether this is an anti-cheat related kick.</param>
     /// <param name="bypassDataCheck">Whether to bypass the data collection check.</param>
     /// <param name="forceBan">Whether to force a ban regardless of settings.</param>
-    internal static void KickImmediate(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false)
+    /// <param name="manual">True only when the host asked for this kick. Automatic kicks are blocked.</param>
+    internal static void KickImmediate(this PlayerControl player, bool ban = false, string setReasonInfo = "", bool antiCheatBan = false, bool bypassDataCheck = false, bool forceBan = false, bool manual = false)
     {
         if (!player.CanKick(ban, antiCheatBan, bypassDataCheck, forceBan, out var shouldBan)) return;
+        if (IsSuppressed(player, setReasonInfo, manual, antiCheatBan)) return;
         player.PerformKick(shouldBan, setReasonInfo, antiCheatBan);
+    }
+
+    /// <summary>
+    /// Returns true (and logs once per player and reason) when an automatic kick is blocked by host safety.
+    /// </summary>
+    private static bool IsSuppressed(PlayerControl player, string setReasonInfo, bool manual, bool antiCheatBan)
+    {
+        if (manual || AutomaticKicksEnabled)
+            return false;
+
+        string reason;
+        try
+        {
+            reason = Utils.RemoveHtmlText(string.Format(setReasonInfo, TranslationStrings.AntiCheat_Kick.LocalizedString.ToLower()));
+        }
+        catch
+        {
+            reason = Utils.RemoveHtmlText(setReasonInfo);
+        }
+
+        if (_suppressedKickLog.Add((player.GetClientId(), reason)))
+        {
+            string name = player.ExtendedData()?.RealName ?? player.Data?.PlayerName ?? "?";
+            BAUPlugin.Logger.LogCheat($"[HostSafety] Not kicking {name} automatically ({reason}). Use /kick if you want them out.");
+
+            // Anti-cheat kicks already showed a cheat alert; other automatic kicks (ban chat list,
+            // minimum level) would otherwise do nothing visible, so tell the host once.
+            if (!antiCheatBan && reason.Trim().Length > 0)
+            {
+                BetterNotificationManager.NotifyLobbyWarning($"autokick:{player.GetClientId()}:{reason}",
+                    $"<color=#ffae00><b>{name}</b></color> {reason.Trim()}\n<size=80%>Not kicked automatically (host safety). Use /kick if you want them out.</size>");
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

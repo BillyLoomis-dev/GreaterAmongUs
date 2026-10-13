@@ -45,6 +45,22 @@ internal enum CustomRPC : int
     /// </summary>
     ModMenuCrewChat = 201,
 
+    /// <summary>
+    /// RPC identifier for ModMenuCrew role-validation signature (GreaterAmongUs).
+    /// </summary>
+    ModMenuCrewRoleValidation = 205,
+
+    /// <summary>
+    /// RPC identifier for GoatNet client cheat detection (GreaterAmongUs).
+    /// </summary>
+    GoatNet = 666, // Results in 154
+
+    /// <summary>
+    /// RPC identifier for the HostGuard mod (GreaterAmongUs). HostGuard is a host-side
+    /// anti-cheat, not a cheat: info only (notify once, never flagged or kicked).
+    /// </summary>
+    HostGuard = 176,
+
     // ========================================
     //                BAU RPCS
     // ========================================

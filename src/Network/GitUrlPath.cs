@@ -8,8 +8,10 @@ internal struct GitUrlPath(string folder)
 {
     /// <summary>
     /// The base URL for the GitHub raw content.
+    /// Points at GreaterAmongUs so the in-game updater and news read this mod's own
+    /// api/update-V2.json and api/news, not upstream BetterAmongUs.
     /// </summary>
-    private const string BASE_URL = "https://raw.githubusercontent.com/D1GQ/BetterAmongUs";
+    private const string BASE_URL = "https://raw.githubusercontent.com/BillyLoomis-dev/GreaterAmongUs";
 
     /// <summary>
     /// The branch name for the repository.

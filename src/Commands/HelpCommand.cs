@@ -9,7 +9,7 @@ internal sealed class HelpCommand : BaseCommand
     internal override string Description => "Get help with commands";
     internal override void Run()
     {
-        CommandResultText("Welcome to <color=#0dff00>♻BetterAmongUs♻</color> This mod enhances your gameplay experience with a variety of exciting features.\n" +
+        CommandResultText("Welcome to <color=#0dff00>♻GreaterAmongUs♻</color> (based on BetterAmongUs by D1GQ). This mod enhances your gameplay experience with a variety of exciting features.\n" +
                     "Explore the pause menu to access more options and better settings tailored to your needs.\n" +
                     "For a full list of available commands, use the `/commands` command.\n\n" +
                     "Our features include: \n" +

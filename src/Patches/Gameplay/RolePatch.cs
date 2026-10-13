@@ -1,4 +1,5 @@
-﻿using BetterAmongUs.MonoScripts.Extended;
+﻿using BetterAmongUs.Modules;
+using BetterAmongUs.MonoScripts.Extended;
 using BetterAmongUs.Utilities;
 using HarmonyLib;
 using InnerNet;
@@ -24,6 +25,8 @@ internal static class RolePatch
         return true;
     }
 
+    // NOTE: SetJudgeOverrule does not run on every client (only where the overrule UI runs),
+    // so JudgeTracker mainly reads the synced overrule queue; this is an extra source.
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.SetJudgeOverrule))]
     [HarmonyPostfix]
     private static void MeetingHud_SetJudgeOverrule_Postfix(MeetingHud __instance, PlayerId judgePlayerId, PlayerId targetPlayerId, ushort overruleNonce)
@@ -31,7 +34,13 @@ internal static class RolePatch
         var judge = Utils.PlayerFromPlayerId(judgePlayerId);
         if (judge != null)
         {
-            judge.ExtendedData().RoleInfo.Judged = targetPlayerId;
+            var extended = judge.ExtendedData();
+            if (extended != null && extended.RoleInfo != null)
+            {
+                extended.RoleInfo.Judged = targetPlayerId;
+            }
         }
+
+        JudgeTracker.Record(judgePlayerId.Value, targetPlayerId.Value, overruleNonce);
     }
 }

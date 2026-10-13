@@ -6,14 +6,14 @@ namespace BetterAmongUs;
 internal partial class BAUPlugin
 {
     /// <summary>
-    /// Contains metadata and constants for the BetterAmongUs mod.
+    /// Contains metadata and constants for the GreaterAmongUs mod (fork of BetterAmongUs).
     /// </summary>
     internal static class ModInfo
     {
         /// <summary>
         /// The base version number of the mod in MAJOR.MINOR.PATCH format.
         /// </summary>
-        internal const string VERSION_NUMBER = "1.3.4";
+        internal const string VERSION_NUMBER = "1.5.0";
 
         /// <summary>
         /// The beta release number. Increment this for each beta release.
@@ -27,6 +27,8 @@ internal partial class BAUPlugin
         internal const string VERSION = VERSION_NUMBER;
 #elif BETA
         internal const string VERSION = $"{VERSION_NUMBER}-beta-{BETA_NUMBER}";
+#else
+        internal const string VERSION = $"{VERSION_NUMBER}-dev";
 #endif
 
         /// <summary>
@@ -40,24 +42,40 @@ internal partial class BAUPlugin
         internal static readonly SemVersion SemVersion = SemVersion.Parse(VERSION);
 
         /// <summary>
-        /// Gets the Git commit hash from assembly metadata.
+        /// Gets the Git commit hash from assembly metadata (empty when built without git).
         /// </summary>
-        public static string CommitHash = ThisAssembly.Git.Commit;
+        public static string CommitHash = GetAssemblyMetadata("CommitHash");
 
         /// <summary>
         /// Gets the build date from assembly metadata.
         /// </summary>
-        public static string BuildDate = ThisAssembly.Metadata.BuildDate;
+        public static string BuildDate = GetAssemblyMetadata("BuildDate");
 
         /// <summary>
-        /// The name of BAU.
+        /// The name of the mod.
         /// </summary>
-        internal const string PLUGIN_NAME = "BetterAmongUs";
+        internal const string PLUGIN_NAME = "GreaterAmongUs";
 
         /// <summary>
-        /// The GUID (Globally Unique Identifier) of BAU.
+        /// The GUID (Globally Unique Identifier) of the mod.
+        /// Different from BetterAmongUs so both can never be loaded as the same plugin.
         /// </summary>
-        internal const string PLUGIN_GUID = "com.d1gq.betteramongus";
+        internal const string PLUGIN_GUID = "com.billyloomis-dev.greateramongus";
+
+        /// <summary>
+        /// The author shown in the console banner.
+        /// </summary>
+        internal const string AUTHOR = "BillyLoomis-dev";
+
+        /// <summary>
+        /// The upstream project this mod is based on (GPL v3.0).
+        /// </summary>
+        internal const string UPSTREAM_NAME = "BetterAmongUs by D1GQ";
+
+        /// <summary>
+        /// The upstream GitHub repository.
+        /// </summary>
+        internal const string UPSTREAM_GITHUB = "https://github.com/D1GQ/BetterAmongUs";
 
         /// <summary>
         /// Gets the list of supported Among Us versions.
@@ -68,14 +86,10 @@ internal partial class BAUPlugin
         ];
 
         /// <summary>
-        /// The GitHub repository URL for BAU.
+        /// The GitHub repository URL for the mod.
+        /// Hard-coded (not read from git) so a local clone's remote can never end up in the DLL.
         /// </summary>
-        internal const string GITHUB = ThisAssembly.Git.RepositoryUrl;
-
-        /// <summary>
-        /// The Discord invite URL for BAU.
-        /// </summary>
-        internal const string DISCORD = "https://discord.gg/vjYrXpzNAn";
+        internal const string GITHUB = "https://github.com/BillyLoomis-dev/GreaterAmongUs";
 
         /// <summary>
         /// Indicator rather that BAU is running on Starlight for Android.

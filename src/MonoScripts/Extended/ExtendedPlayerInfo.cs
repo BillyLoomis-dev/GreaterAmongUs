@@ -240,6 +240,11 @@ internal sealed class ExtendedRoleInfo
     /// Gets or sets the role to display when dead.
     /// </summary>
     internal RoleTypes DeadDisplayRole { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether <see cref="DeadDisplayRole"/> was captured (false = default value, not a real role).
+    /// </summary>
+    internal bool HasDeadDisplayRole { get; set; }
 }
 
 /// <summary>

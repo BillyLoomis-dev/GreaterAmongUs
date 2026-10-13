@@ -69,8 +69,10 @@ internal static class GameSettingsPatch
             {
                 OptionTitleItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_TextHeader_HostOnly);
                 BetterGameSettings.KickCooldown = OptionFloatItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_Setting_KickCooldown, (0f, 3f, 0.1f), 2f, ("", "s"));
+                // Default Notify (0). Automatic kicks/bans are blocked for host safety anyway
+                // (see PlayerControlUtils.AutomaticKicksEnabled), so Kick/Ban would only be a label.
                 BetterGameSettings.WhenCheating = OptionStringItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_Setting_WhenCheating,
-                    [TranslationStrings.BetterSetting_Setting_WhenCheating_Notify, TranslationStrings.BetterSetting_Setting_WhenCheating_Kick, TranslationStrings.BetterSetting_Setting_WhenCheating_Ban], 2);
+                    [TranslationStrings.BetterSetting_Setting_WhenCheating_Notify, TranslationStrings.BetterSetting_Setting_WhenCheating_Kick, TranslationStrings.BetterSetting_Setting_WhenCheating_Ban], 0);
                 BetterGameSettings.InvalidFriendCode = OptionCheckboxItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_Setting_InvalidFriendCode, true);
                 BetterGameSettings.CancelInvalidSabotage = OptionCheckboxItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_Setting_CancelInvalidSabotage, true);
                 BetterGameSettings.UseBanPlayerList = OptionCheckboxItem.Create(BetterSettingsTab, TranslationStrings.BetterSetting_Setting_UseBanPlayerList, true);

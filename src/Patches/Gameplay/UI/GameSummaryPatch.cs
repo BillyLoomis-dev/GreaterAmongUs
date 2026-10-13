@@ -213,17 +213,22 @@ internal static class GameSummaryPatch
         var themeColor = Utils.GetTeamHexColor(playerData.Role.TeamType);
         var theme = (string text) => $"<color={themeColor}>{text}</color>";
 
-        var roleName = theme(playerData.RoleType.GetRoleName());
+        // Dead players carry a ghost role (Crewmate/Impostor ghost, Guardian Angel, Influencer) that hides
+        // their real role, so show the role they had (a dead Judge reads "Judge", not "Crewmate").
+        var roleName = theme(playerData.GetDisplayRole().GetRoleName());
+
+        // Who judged who, for everyone, now that the game is over.
+        var judgeInfo = JudgeTracker.GetSuffix(playerData.PlayerId, true);
 
         if (playerData.Role.IsImpostor)
         {
             var kills = playerData.ExtendedData().RoleInfo.Kills;
-            return $"({roleName}) → {theme($"{TranslationStrings.Kills}: {kills}")}";
+            return $"({roleName}) → {theme($"{TranslationStrings.Kills}: {kills}")}{judgeInfo}";
         }
 
         var completedTasks = playerData.Tasks.WhereIl2Cpp(task => task.Complete).Count;
         var totalTasks = playerData.Tasks.Count;
-        return $"({roleName}) → {theme($"{TranslationStrings.Tasks}: {completedTasks}/{totalTasks}")}";
+        return $"({roleName}) → {theme($"{TranslationStrings.Tasks}: {completedTasks}/{totalTasks}")}{judgeInfo}";
     }
 
     // Builds player status (DC/Dead/Alive)

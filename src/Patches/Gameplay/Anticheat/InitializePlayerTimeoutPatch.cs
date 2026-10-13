@@ -1,5 +1,6 @@
 ﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
 using BetterAmongUs.Generated;
+using BetterAmongUs.Managers;
 using BetterAmongUs.Modules;
 using BetterAmongUs.Utilities;
 using HarmonyLib;
@@ -26,7 +27,15 @@ internal static class InitializePlayerTimeoutPatch
             if (GameState.IsHost)
             {
                 player.Kick(true, TranslationStrings.AntiCheat_Reason_Initialize.LocalizedString, true, forceBan: true);
-                exit = true;
+
+                // Automatic kicks are blocked (host safety), so don't strand the player invisible:
+                // let the game finish loading them, and tell the host.
+                exit = PlayerControlUtils.AutomaticKicksEnabled;
+                if (!exit)
+                {
+                    BetterNotificationManager.NotifyLobbyWarning($"init-timeout:{player.PlayerId}",
+                        $"<color=#ffae00><b>A player took over 25s to load</b></color>\n<size=80%>Possible join exploit or a very bad connection. Use /kick if needed.</size>");
+                }
             }
             else
             {

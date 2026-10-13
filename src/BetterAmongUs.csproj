@@ -7,6 +7,12 @@
 		<OutputType>Library</OutputType>
 		<LangVersion>preview</LangVersion>
 		<Configurations>Debug;Release;Beta</Configurations>
+		<AssemblyName>GreaterAmongUs</AssemblyName>
+		<RootNamespace>BetterAmongUs</RootNamespace>
+		<!-- Reproducible build: no machine paths (C:\Users\...) end up in the DLL/PDB. -->
+		<Deterministic>true</Deterministic>
+		<PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<!-- Apply Null Notation Restrictions -->
@@ -25,7 +31,8 @@
 		<GeneratedOutputDir>$(MSBuildProjectDirectory)\build\Generated</GeneratedOutputDir>
 	</PropertyGroup>
 
-	<Target Name="GenerateTranslationKeys" BeforeTargets="BeforeBuild">
+	<!-- Windows only (PowerShell). The generated file is committed, so other platforms just use it. -->
+	<Target Name="GenerateTranslationKeys" BeforeTargets="BeforeBuild" Condition="$([MSBuild]::IsOsPlatform(Windows))">
 		<MakeDir Directories="$(GeneratedOutputDir)" Condition="!Exists('$(GeneratedOutputDir)')" />
 
 		<Exec Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\build\GenerateTranslationStrings.ps1&quot; -JsonPath &quot;$(TranslationJsonPath)&quot; -OutputPath &quot;$(GeneratedOutputDir)\$(TranslationKeysClassName).cs&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" IgnoreExitCode="true">
@@ -35,7 +42,7 @@
 		<Error Condition="'$(ScriptExitCode)' != '0'" Text="Translation key generation failed. See errors in error list." />
 	</Target>
 
-	<Target Name="CleanTranslationKeys" AfterTargets="Clean">
+	<Target Name="CleanTranslationKeys" AfterTargets="Clean" Condition="$([MSBuild]::IsOsPlatform(Windows))">
 		<Delete Files="$(GeneratedOutputDir)\$(TranslationKeysClassName).cs" />
 	</Target>
 
@@ -44,11 +51,22 @@
 		<BuildDate>$([System.DateTime]::Now.ToString("MM.dd.yyyy"))</BuildDate>
 	</PropertyGroup>
 
-	<!-- Define metadata for ThisAssembly.Metadata -->
+	<!-- Assembly metadata read at runtime by BAUPlugin.ModInfo (no GitInfo / ThisAssembly packages needed). -->
 	<ItemGroup>
 		<AssemblyMetadata Include="BuildDate" Value="$(BuildDate)" />
 		<AssemblyMetadata Include="BuildConfiguration" Value="$(Configuration)" />
 	</ItemGroup>
+
+	<!-- Short commit hash (optional; empty when git is not installed or this is not a clone). -->
+	<Target Name="AddCommitHashMetadata" BeforeTargets="GetAssemblyAttributes;CoreGenerateAssemblyInfo">
+		<Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" EchoOff="true" StandardOutputImportance="low" StandardErrorImportance="low" ContinueOnError="true">
+			<Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
+			<Output TaskParameter="ExitCode" PropertyName="GitExitCode" />
+		</Exec>
+		<ItemGroup Condition="'$(GitExitCode)' == '0'">
+			<AssemblyMetadata Include="CommitHash" Value="$(GitCommitHash)" />
+		</ItemGroup>
+	</Target>
 
 	<!-- Game Path Configuration -->
 	<PropertyGroup>
@@ -78,10 +96,23 @@
 		<Warning Text="Game path not found. Create $(ModPathFile) with game folder path." Condition="'$(CopyToGame)' == 'true' and ('$(GamePath)' == '' or !Exists('$(GamePath)'))" />
 	</Target>
 
+	<!--
+	  Game assemblies. Two ways to build:
+	    1) Default: the AmongUs.GameLibs.Steam NuGet package (2026.9.29 = current 64-bit game).
+	    2) Your own game's interop folder (for a game update before the package exists):
+	         dotnet build -c Release -p:InteropDir="C:\Program Files (x86)\Steam\steamapps\common\Among Us\BepInEx\interop"
+	       (start Among Us once with BepInEx so the interop folder is generated)
+	-->
+	<ItemGroup Condition="'$(InteropDir)' != ''">
+		<Reference Include="$(InteropDir)\*.dll">
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
 	<!-- NuGet Core Packages -->
 	<ItemGroup>
-		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2026.9.29" />
-		<PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.0.1">
+		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2026.9.29" Condition="'$(InteropDir)' == ''" />
+		<PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.0.1" Condition="'$(InteropDir)' == ''">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -95,15 +126,6 @@
 	<!-- NuGet Info Packages -->
 	<ItemGroup>
 		<PackageReference Include="Semver" Version="3.0.0" />
-		<PackageReference Include="GitInfo" Version="3.3.3">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="ThisAssembly.Metadata" Version="2.1.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<GeneratePathProperty>true</GeneratePathProperty>
-		</PackageReference>
 	</ItemGroup>
 
 	<!-- Embedded Resources -->

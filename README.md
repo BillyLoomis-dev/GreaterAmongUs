@@ -37,6 +37,8 @@ Everything BetterAmongUs 1.3.4 has, plus:
 - **No handshake on official servers.** The BetterAmongUs handshake is never sent on Innersloth servers
   (they disconnected players for it). `Send Greater RPC` is off by default.
 - Players who take over 25 seconds to load are no longer left invisible; you get a warning instead.
+- The first start after installing BepInEx loads the mod. BetterAmongUs crashed its own startup there (it wrote
+  its console banner into a console it had just closed), so the first start was always vanilla.
 
 ### Alerts
 - **Sticky cheat alerts.** Each detection stays on screen (up to 60 minutes) and stacks, newest on top.
@@ -82,8 +84,8 @@ Everything BetterAmongUs 1.3.4 has, plus:
    [BetterAmongUs releases](https://github.com/D1GQ/BetterAmongUs/releases) and extract **everything** into your
    Among Us folder (Steam: right-click Among Us > Manage > Browse local files).
 3. In `Among Us\BepInEx\plugins\`, replace `BetterAmongUs.dll` with `GreaterAmongUs.dll` (Option 1, step 2).
-4. Start Among Us. **The first start can open plain Among Us while BepInEx sets itself up - close it and start
-   it again.** You only do this once.
+4. Start Among Us. The first start takes longer (about a minute) while BepInEx sets itself up; the mod loads
+   on that first start too.
 
 To uninstall, delete `BepInEx`, `dotnet`, `winhttp.dll` and `doorstop_config.ini` from the game folder.
 

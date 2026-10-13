@@ -100,7 +100,10 @@ internal partial class BAUPlugin : BasePlugin
 
             if (!ModInfo.Starlight)
             {
-                SetupConsole();
+                // Each step on its own: a console problem must never stop the mod from loading
+                // (it used to: the first start after installing BepInEx loaded vanilla).
+                try { Encryptor.Initialize(); } catch (Exception ex) { Logger.Error(ex); }
+                try { SetupConsole(); } catch (Exception ex) { Logger.Error(ex); }
             }
 
             RegisterInIl2Cpp.Initialize();
@@ -168,18 +171,52 @@ internal partial class BAUPlugin : BasePlugin
     /// <summary>
     /// Sets up the console window for logging.
     /// </summary>
+    /// <remarks>
+    /// The mod shows its own console (its colors and banner) instead of BepInEx's.
+    /// On the first start after installing BepInEx, BepInEx's console setting is still on, so
+    /// BepInEx has already opened its window. Upstream closed that window and then wrote the
+    /// banner into the closed console, which crashed the mod's startup (vanilla game until the
+    /// next start). Now that window is simply kept and used as ours, BepInEx's own console
+    /// printer is removed so lines don't show twice, and the setting is turned off so from the
+    /// next start only our console opens.
+    /// </remarks>
     private static void SetupConsole()
     {
-        Encryptor.Initialize();
-        ConsoleManager.CreateConsole();
         ConsoleManager.ConfigPreventClose.Value = true;
-        if (ConsoleManager.ConfigConsoleEnabled.Value) ConsoleManager.DetachConsole();
-        ConsoleManager.ConfigConsoleEnabled.Value = false;
-        ConsoleManager.SetConsoleTitle($"Among Us - {ModInfo.PLUGIN_NAME} Console");
+
+        if (ConsoleManager.ConfigConsoleEnabled.Value)
+        {
+            RemoveBepInExConsoleListeners();
+            ConsoleManager.ConfigConsoleEnabled.Value = false;
+        }
+
+        // Opens our console; does nothing if BepInEx's window (first start) is already open.
+        ConsoleManager.CreateConsole();
+
         var customLogListener = new CustomLogListener(Logger);
         BepInEx.Logging.Logger.Listeners.Add(customLogListener);
+
+        if (!ConsoleManager.ConsoleActive || ConsoleManager.ConsoleStream == null)
+            return;
+
+        ConsoleManager.SetConsoleTitle($"Among Us - {ModInfo.PLUGIN_NAME} Console");
         ConsoleManager.SetConsoleColor(ConsoleColor.Green);
         WriteBanner();
+    }
+
+    /// <summary>
+    /// Removes BepInEx's own console log printer (only registered when BepInEx's console setting is on).
+    /// </summary>
+    private static void RemoveBepInExConsoleListeners()
+    {
+        var consoleListeners = BepInEx.Logging.Logger.Listeners
+            .Where(l => l != null && l.GetType().Name == "ConsoleLogListener")
+            .ToList();
+
+        foreach (var listener in consoleListeners)
+        {
+            BepInEx.Logging.Logger.Listeners.Remove(listener);
+        }
     }
 
     /// <summary>
@@ -215,6 +252,9 @@ internal partial class BAUPlugin : BasePlugin
         string basedOn = $"based on {ModInfo.UPSTREAM_NAME} (GPL v3.0)";
 
         var stream = ConsoleManager.ConsoleStream;
+        if (stream == null)
+            return;
+
         stream.WriteLine($".{h}.");
         stream.WriteLine($"|{blank}|");
         foreach (var line in artLines)

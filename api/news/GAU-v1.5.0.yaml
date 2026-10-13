@@ -33,6 +33,7 @@
  #### Fixes
  - Roles added by game updates no longer show as missing; new roles use the game's own color.
  - Slow-loading players are no longer left invisible.
+ - The first start after installing BepInEx now loads the mod (it used to open plain Among Us).
  ---
  ## [Github](https://github.com/BillyLoomis-dev/GreaterAmongUs)
 

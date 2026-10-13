@@ -7,6 +7,9 @@ GreaterAmongUs is a **fork of [BetterAmongUs](https://github.com/D1GQ/BetterAmon
 BetterAmongUs **1.3.4**, distributed under the **GNU General Public License v3.0** like the original.
 See `LICENSE` for the full text.
 
+**Modified version:** the BetterAmongUs source was changed by BillyLoomis-dev (this version: October 2026).
+The changes are listed below and in this repository's commit history.
+
 ## What GreaterAmongUs adds to BetterAmongUs
 
 Everything BetterAmongUs 1.3.4 has, plus:

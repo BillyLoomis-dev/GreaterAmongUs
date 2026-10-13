@@ -1,0 +1,41 @@
+^show: true
+^type: 1
+^title: BAU is now open source!!!
+^subtitle: There's nothing to hide ;)
+^listtitle: BAU v1.3.1
+^date: 2026-01-09T12:00:00.0000000Z
+
+^content-en_US:
+ # Better Among Us v1.3.1
+
+ We are thrilled to announce this release of **BetterAmongUs**, a mod designed to enhance your Among Us experience!
+ ---
+ BAU is now Open Source! check out the [Github](https://github.com/D1GQ/BetterAmongUs/)
+ ---
+
+ ## Change Log
+
+ #### Mod
+ - **Compatibility**: Updated to Among Us 2025.11.18
+ ---
+ #### New Features
+ - **Favorite Color**: You can now set a favorite color by shift clicking a color chip to automatically equip that color when available
+ - **Host Icon**: Added icon on the top left of meetings to display the host
+ ---
+ #### Improvements
+ - **AU Support**: Added support to Among Us v17.0.1
+ - **Performance Optimization**: Reduced lag and improved frame rate by optimizing BAU to work with Il2Cpp issues
+ - **Announcements**: Announcements are now able to be added without having to update the mod
+ - **Settings**: Reworked better settings menu
+ ---
+ #### Changed
+ - **Detected Level Above**: Adjusted setting to allow higher values
+ - **Restrictions**: Removed all restrictions on untrusted assemblies
+ ---
+ #### Bug Fixes
+ - Fixed Starting Game in Private Only Lobbies
+ - Fixed memory leak in message readers
+ - Fixed cheater label bypassing Shapeshift
+ ---
+ ## [Discord](https://discord.gg/vjYrXpzNAn) [Github](https://github.com/D1GQ/BetterAmongUs/)
+ 

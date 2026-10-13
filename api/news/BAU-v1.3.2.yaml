@@ -1,0 +1,33 @@
+^show: true
+^type: 1
+^title: Welcome back (>u<)ﾉﾞ
+^subtitle: It hasn't been that long right...
+^listtitle: BAU v1.3.2
+^date: 2026-01-30T12:00:00.0000000Z
+
+^content-en_US:
+ # Better Among Us v1.3.2
+
+ We are thrilled to announce this release of **BetterAmongUs**, a mod designed to enhance your Among Us experience!
+ ---
+
+ ## Change Log
+
+ #### New Features
+ - **Detection Reasons**: The reason for players getting flagged is now specified in logs
+ - **BAUModdedSupportFlags**: Added the ability for other mods to disable certain features in BAU without needing a dll reference
+ - **BAUModdedSupportEvents**: Added the ability for other mods to hook into events in BAU without needing a dll reference
+ - **Command Availability**: Commands now are highlighted red and has a specified reason why it's unavailable. Before it was just hidden
+ ---
+ #### Improvements
+ - **Client Options**: Reworked client options to be in its own tab on the pause menu
+ - **Text Files**: Added example uses in BetaData text files
+ - **Documentation**: Due to BAU being open source now added documentation to most classes on what does what
+ ---
+ #### Bug Fixes
+ - Fixed duplicate login issue on end game when pressing continue
+ - Fixed minimap not being recolored for detective map
+ - Fixed issues with default outfit preset saving
+ ---
+ ## [Discord](https://discord.gg/vjYrXpzNAn) [Github](https://github.com/D1GQ/BetterAmongUs/)
+ 

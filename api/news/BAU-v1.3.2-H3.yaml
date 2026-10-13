@@ -1,0 +1,29 @@
+^show: true
+^type: 1
+^title: Hotfix Patch Notes
+^subtitle: Just a quick hotfix and some new stuff!
+^listtitle: BAU v1.3.2 H3
+^date: 2026-02-26T12:00:00.0000000Z
+
+^content-en_US:
+ # Better Among Us v1.3.2 Hotfix 3
+
+ We are thrilled to announce this hotfix of **BetterAmongUs**, a mod designed to enhance your Among Us experience!
+ ---
+
+ ## Change Log
+
+ #### New Features
+ - **Map Icons**: The mini map now has icons, for Vents, Devices, Sabotages and more
+ - **Vent Groups**: Vents now are assigned color groups, this is visible on the mini map and when interacting with one
+ ---
+ #### Bug Fixes
+ - Possibly fixed logical error possibly causing Viper to be desynced making the AU Anti-Cheat kick players
+ - Fixed mod not loading when there is an invalid save file
+ - Fixed kick player below not working
+ - Fixed Uncap FPS not being applied when reopening the game
+ - Fixed issues with zooming
+ - Fixed Issues with admin table color during comms sabotage
+ ---
+ ## [Discord](https://discord.gg/vjYrXpzNAn) [Github](https://github.com/D1GQ/BetterAmongUs/)
+ 

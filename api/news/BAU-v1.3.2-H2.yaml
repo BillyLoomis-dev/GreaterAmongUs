@@ -1,0 +1,25 @@
+^show: true
+^type: 1
+^title: Hotfix Patch Notes
+^subtitle: Just a quick hotfix and some new stuff!
+^listtitle: BAU v1.3.2 H2
+^date: 2026-02-05T12:00:00.0000000Z
+
+^content-en_US:
+ # Better Among Us v1.3.2 Hotfix 2
+
+ We are thrilled to announce this hotfix of **BetterAmongUs**, a mod designed to enhance your Among Us experience!
+ ---
+
+ ## Change Log
+
+ #### New Features
+ - **Setting Presets**: There are now 10 different setting presets that you can save with
+ - **Kick Level Below Option**: Added new option that automatically kicks players that are below a level threshold
+ ---
+ #### Bug Fixes
+ - Fixed issues with level detection
+ - Fixed skip meeting command not sending close rpc
+ ---
+ ## [Discord](https://discord.gg/vjYrXpzNAn) [Github](https://github.com/D1GQ/BetterAmongUs/)
+ 

@@ -1,0 +1,266 @@
+using AmongUs.GameOptions;
+
+namespace BetterAmongUs.Modules;
+
+/// <summary>
+/// Provides static properties to check various game states and conditions.
+/// </summary>
+internal static class GameState
+{
+    /**********Check Game Status***********/
+    /// <summary>
+    /// Gets whether any players exist in the game.
+    /// </summary>
+    internal static bool InGame => BAUPlugin.AllPlayerControls.Any();
+
+    /// <summary>
+    /// Gets whether the current game mode is Normal or NormalFools.
+    /// </summary>
+    internal static bool IsNormalGame => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.Normal or GameModes.NormalFools;
+
+    /// <summary>
+    /// Gets whether the current game mode is HideNSeek or SeekFools.
+    /// </summary>
+    internal static bool IsHideNSeek => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.HideNSeek or GameModes.SeekFools;
+
+    /// <summary>
+    /// Gets whether the Skeld map is currently active.
+    /// </summary>
+    internal static bool SkeldIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.Skeld;
+
+    /// <summary>
+    /// Gets whether the MiraHQ map is currently active.
+    /// </summary>
+    internal static bool MiraHQIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.MiraHQ;
+
+    /// <summary>
+    /// Gets whether the Polus map is currently active.
+    /// </summary>
+    internal static bool PolusIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.Polus;
+
+    /// <summary>
+    /// Gets whether the Dleks map is currently active.
+    /// </summary>
+    internal static bool DleksIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.Dleks;
+
+    /// <summary>
+    /// Gets whether the Airship map is currently active.
+    /// </summary>
+    internal static bool AirshipIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.Airship;
+
+    /// <summary>
+    /// Gets whether the Fungle map is currently active.
+    /// </summary>
+    internal static bool FungleIsActive => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null &&
+        (MapNames)GameOptionsManager.Instance.CurrentGameOptions.MapId == MapNames.Fungle;
+
+    /// <summary>
+    /// Gets the ID of the currently active map.
+    /// </summary>
+    internal static byte GetActiveMapId => GameOptionsManager.Instance != null &&
+        GameOptionsManager.Instance.CurrentGameOptions != null ?
+        GameOptionsManager.Instance.CurrentGameOptions.MapId : (byte)0;
+
+    /// <summary>
+    /// Gets whether the player is in a game.
+    /// </summary>
+    internal static bool IsInGame => InGame;
+
+    /// <summary>
+    /// Gets whether the player is in the lobby (joined but game not started).
+    /// </summary>
+    internal static bool IsLobby => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined;
+
+    /// <summary>
+    /// Gets whether the intro cutscene is currently playing.
+    /// </summary>
+    internal static bool IsInIntro => IntroCutscene.Instance != null;
+
+    /// <summary>
+    /// Gets whether gameplay is currently active (not in lobby, intro, or ended).
+    /// </summary>
+    internal static bool IsInGamePlay => (InGame && IsShip && !IsLobby && !IsInIntro) || IsFreePlay;
+
+    /// <summary>
+    /// Gets whether the game has ended.
+    /// </summary>
+    internal static bool IsEnded => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended;
+
+    /// <summary>
+    /// Gets whether the player is not joined to any game.
+    /// </summary>
+    internal static bool IsNotJoined => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.NotJoined;
+
+    /// <summary>
+    /// Gets whether the current game is an online game.
+    /// </summary>
+    internal static bool IsOnlineGame => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
+
+    /// <summary>
+    /// Gets whether the player is connected to a vanilla (official) server.
+    /// </summary>
+    internal static bool IsVanillaServer
+    {
+        get
+        {
+            if (!IsOnlineGame) return false;
+
+            if (ServerManager.Instance == null || ServerManager.Instance.CurrentRegion == null)
+                return false;
+
+            string region = ServerManager.Instance.CurrentRegion.Name;
+            return region == "North America" || region == "Europe" || region == "Asia";
+        }
+    }
+
+    /// <summary>
+    /// Gets whether if the current lobby is on modded protocol.
+    /// </summary>
+    internal static bool IsModdedProtocol
+    {
+        get
+        {
+            if (IsFreePlay || IsLocalGame)
+            {
+                return false;
+            }
+
+            if (PlayerControl.LocalPlayer == null)
+            {
+                return false;
+            }
+
+            if (PlayerControl.LocalPlayer.Data == null)
+            {
+                return false;
+            }
+
+            if (PlayerControl.LocalPlayer.Data.OwnerId == -2)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets whether the current game is a local game.
+    /// </summary>
+    internal static bool IsLocalGame => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;
+
+    /// <summary>
+    /// Gets whether the current game is in free play mode.
+    /// </summary>
+    internal static bool IsFreePlay => AmongUsClient.Instance != null &&
+        AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay;
+
+    /// <summary>
+    /// Gets whether the player is in a task (not in a meeting).
+    /// </summary>
+    internal static bool IsInTask => InGame && MeetingHud.Instance == null;
+
+    /// <summary>
+    /// Gets whether a meeting is currently active.
+    /// </summary>
+    internal static bool IsMeeting => InGame && MeetingHud.Instance != null;
+
+    /// <summary>
+    /// Gets whether voting is currently in progress during a meeting.
+    /// </summary>
+    internal static bool IsVoting
+    {
+        get
+        {
+            if (!IsMeeting || MeetingHud.Instance == null)
+                return false;
+
+            return MeetingHud.Instance.state is MeetingHud.MeetingStates.Voted or MeetingHud.MeetingStates.NotVoted;
+        }
+    }
+
+    /// <summary>
+    /// Gets whether the meeting is proceeding to results.
+    /// </summary>
+    internal static bool IsProceeding
+    {
+        get
+        {
+            if (!IsMeeting || MeetingHud.Instance == null)
+                return false;
+
+            return MeetingHud.Instance.state == MeetingHud.MeetingStates.Proceeding;
+        }
+    }
+
+    /// <summary>
+    /// Gets whether a player is being exiled.
+    /// </summary>
+    internal static bool IsExilling
+    {
+        get
+        {
+            if (ExileController.Instance == null)
+                return false;
+
+            return !(AirshipIsActive && Minigame.Instance != null && Minigame.Instance.isActiveAndEnabled);
+        }
+    }
+
+    /// <summary>
+    /// Gets whether the game start countdown is active.
+    /// </summary>
+    internal static bool IsCountDown => GameStartManager.InstanceExists &&
+        GameStartManager.Instance != null &&
+        GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
+
+    /// <summary>
+    /// Gets whether a ship (map) is currently loaded.
+    /// </summary>
+    internal static bool IsShip => ShipStatus.Instance != null;
+
+    /// <summary>
+    /// Gets whether the local player is the host.
+    /// </summary>
+    internal static bool IsHost => AmongUsClient.Instance != null && AmongUsClient.Instance.AmHost;
+
+    /// <summary>
+    /// Gets whether the local player can move.
+    /// </summary>
+    internal static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
+
+    /// <summary>
+    /// Gets whether the local player is dead.
+    /// </summary>
+    internal static bool IsDead
+    {
+        get
+        {
+            if (PlayerControl.LocalPlayer == null)
+                return false;
+
+            var data = PlayerControl.LocalPlayer.Data;
+            return data != null && data.IsDead;
+        }
+    }
+}

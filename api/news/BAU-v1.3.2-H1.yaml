@@ -1,0 +1,23 @@
+^show: true
+^type: 1
+^title: Hotfix Patch Notes
+^subtitle: Just a quick hotfix!
+^listtitle: BAU v1.3.2 H1
+^date: 2026-02-01T12:00:00.0000000Z
+
+^content-en_US:
+ # Better Among Us v1.3.2 Hotfix 1
+
+ We are thrilled to announce this hotfix of **BetterAmongUs**, a mod designed to enhance your Among Us experience!
+ ---
+
+ ## Change Log
+
+ #### Improvements
+ - **Custom Rpcs**: Changed method for custom rpcs due to changes to servers soon!
+ ---
+ #### Bug Fixes
+ - Fixed game options not saving
+ ---
+ ## [Discord](https://discord.gg/vjYrXpzNAn) [Github](https://github.com/D1GQ/BetterAmongUs/)
+ 

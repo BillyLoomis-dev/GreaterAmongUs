@@ -123,6 +123,121 @@ internal sealed class BAULogger(ManualLogSource manualLogSource)
         catch { }
     }
 
+    // ---------------------------------------------------------------------------------------
+    // Hidden-until-the-match-ends logging (GreaterAmongUs)
+    // ---------------------------------------------------------------------------------------
+
+    private readonly List<(string tag, string info, bool console)> _heldLines = [];
+    private int _droppedHeldLines;
+    private const int MaxHeldLines = 5000;
+
+    /// <summary>
+    /// True while a match is running (from the intro to the end of the game), not in the lobby
+    /// and not in freeplay. The game switches to "Ended" before it reports the end of the match.
+    /// </summary>
+    internal static bool IsMatchRunning =>
+        AmongUsClient.Instance != null
+        && AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Started
+        && !GameState.IsFreePlay;
+
+    /// <summary>
+    /// Called when the match is over: everything held back is written.
+    /// (Also called again from the end screen; it does nothing when there is nothing left.)
+    /// </summary>
+    internal void OnMatchEnd()
+    {
+        ReleaseHeldLogs();
+    }
+
+    /// <summary>
+    /// Called when you leave or lose the connection. When the match ended normally everything was already written
+    /// (<see cref="OnMatchEnd"/>), so anything still held means you left before the end: the match
+    /// may still be running for the others, so those lines are thrown away instead of written.
+    /// (Not decided from the game state: it is already reset when you leave.)
+    /// </summary>
+    internal void OnLeaveGame()
+    {
+        DiscardHeldLogs("Left the match before it ended");
+    }
+
+    /// <summary>
+    /// Logs something that would give a player an advantage if seen during the match: who vented,
+    /// shapeshifted, vanished, tried to kill or protect, ghost chat, Judge choices, or anything the
+    /// anti-cheat quietly blocked without it being cheating.
+    /// While a match is running the line is ONLY kept in memory - it is not shown in the console and
+    /// not written to any file, so nobody can watch it live. It is written when the match ends
+    /// (<see cref="ReleaseHeldLogs"/>). Outside a match it is written right away.
+    /// Real cheat detections do not use this; they are shown live so the host can act.
+    /// </summary>
+    /// <param name="info">The line.</param>
+    /// <param name="tag">The log tag.</param>
+    /// <param name="showInConsole">When written: true = console and log file, false = encrypted log only (read it with /dump in the lobby).</param>
+    /// <param name="hostOnly">Only log when the client is host (checked now, not when written).</param>
+    internal void LogHidden(string info, string tag = "EventLog", bool showInConsole = true, bool hostOnly = false)
+    {
+        if (hostOnly && !GameState.IsHost)
+            return;
+
+        if (IsMatchRunning)
+        {
+            if (_heldLines.Count < MaxHeldLines)
+                _heldLines.Add((tag, $"{DateTime.Now:HH:mm:ss} {info}", showInConsole));
+            else
+                _droppedHeldLines++;
+            return;
+        }
+
+        WriteHidden(info, tag, showInConsole);
+    }
+
+    private void WriteHidden(string info, string tag, bool showInConsole)
+    {
+        if (showInConsole)
+            LogCheat(info, tag);
+        else
+            LogPrivate(info, tag);
+    }
+
+    /// <summary>
+    /// Writes everything that was held back during the match. Call only when the match is over.
+    /// </summary>
+    private void ReleaseHeldLogs()
+    {
+        if (_heldLines.Count == 0 && _droppedHeldLines == 0)
+            return;
+
+        var lines = _heldLines.ToList();
+        int dropped = _droppedHeldLines;
+        _heldLines.Clear();
+        _droppedHeldLines = 0;
+
+        LogHeader("Match log (hidden while the match was running)", "MatchLog");
+        foreach (var (tag, info, showInConsole) in lines)
+        {
+            WriteHidden(info, tag, showInConsole);
+        }
+        if (dropped > 0)
+        {
+            Log($"{dropped} more lines were not kept (limit {MaxHeldLines})", "MatchLog");
+        }
+        LogHeader("Match log end", "MatchLog");
+    }
+
+    /// <summary>
+    /// Throws away what was held back without writing it (only the number of lines is logged).
+    /// </summary>
+    private void DiscardHeldLogs(string reason)
+    {
+        int count = _heldLines.Count + _droppedHeldLines;
+        _heldLines.Clear();
+        _droppedHeldLines = 0;
+
+        if (count > 0)
+        {
+            Log($"{reason}: {count} hidden log lines were discarded", "MatchLog");
+        }
+    }
+
     /// <summary>
     /// Decrypts all encrypted sections within a log file text.
     /// </summary>

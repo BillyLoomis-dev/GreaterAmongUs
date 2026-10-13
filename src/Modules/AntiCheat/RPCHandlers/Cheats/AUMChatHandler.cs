@@ -28,13 +28,18 @@ internal sealed class AUMChatHandler : RPCHandler
 
             var betterData = sender.ExtendedData();
             var alreadyContainsMessage = betterData.AntiCheatInfo.AUMChats.Count > 0 && betterData.AntiCheatInfo.AUMChats.Last() == msgString;
-            if (!alreadyContainsMessage)
+            // During a match the content stays hidden (cheaters see roles and can share them here);
+            // the AUM detection itself is still shown live below.
+            if (!alreadyContainsMessage && !BAULogger.IsMatchRunning)
             {
                 Utils.AddChatPrivate($"{msgString}", overrideName: $"<b>{TranslationStrings.AntiCheat_Cheat_AUMChat.LocalizedString.ToColor(Colors.AUMHexColor)} - {sender.GetPlayerNameAndColor()}</b>");
+            }
+            if (!alreadyContainsMessage)
+            {
                 betterData.AntiCheatInfo.AUMChats.Add(msgString);
             }
 
-            BAUPlugin.Logger.Log($"{sender.Data.PlayerName} -> {msgString}", "AUMChatLog");
+            BAUPlugin.Logger.LogHidden($"{sender.Data.PlayerName} -> {msgString}", "AUMChatLog");
 
             if (BAUModdedSupportFlags.HasFlag(BAUModdedSupportFlags.Disable_Anticheat))
                 return;

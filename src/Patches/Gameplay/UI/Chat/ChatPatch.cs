@@ -216,8 +216,8 @@ internal static class ChatPatch
     [HarmonyPostfix]
     private static void ChatController_AddChat_Postfix(ChatController __instance, PlayerControl sourcePlayer, string chatText)
     {
-        // Log chat publicly if player is alive, privately if dead
-        BAUPlugin.Logger.LogPrivate($"{sourcePlayer.Data.PlayerName} -> {chatText}", "ChatLog");
+        // Encrypted chat log. During a match it is only written when the match ends (ghost chat).
+        BAUPlugin.Logger.LogHidden($"{sourcePlayer.Data.PlayerName} -> {chatText}", "ChatLog", showInConsole: false);
     }
 
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.SetChatBubbleName))]

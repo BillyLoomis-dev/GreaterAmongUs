@@ -51,13 +51,19 @@ internal sealed class MurderPlayerHandler : RPCHandler
 
         if (target != null)
         {
-            if (!sender.IsImpostorTeam() || !sender.IsAlive() || sender.IsInVanish() || target.IsImpostorTeam())
+            if (!sender.IsImpostorTeam() || !sender.IsAlive() || target.IsImpostorTeam())
             {
                 if (BetterNotificationManager.NotifyCheat(sender, GetFormatActionText()))
                 {
                     string issue = GetMurderIssue(sender, target);
                     LogRpcInfo($"Invalid murder: {issue}");
                 }
+            }
+            else if (sender.IsInVanish())
+            {
+                // GreaterAmongUs: only logged. The host approved this kill; a Phantom that kills and
+                // vanishes at the same moment can look vanished here first. Reporting it named the Phantom.
+                LogRpcInfo($"Kill while vanished (allowed, timing)");
             }
         }
     }
@@ -66,7 +72,6 @@ internal sealed class MurderPlayerHandler : RPCHandler
     {
         if (!sender.IsImpostorTeam()) return "Sender not impostor team";
         if (!sender.IsAlive()) return "Sender not alive";
-        if (sender.IsInVanish()) return "Sender is vanished";
         if (target.IsImpostorTeam()) return "Target is impostor team";
 
         return "Unknown murder issue";

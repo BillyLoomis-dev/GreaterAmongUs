@@ -189,8 +189,9 @@ internal class PlayerInfoDisplay : MonoBehaviour
         if (DataManager.Settings.Gameplay.StreamerMode)
             platform = TranslationStrings.Player_PlatformHidden.LocalizedString;
 
-        if (!_player.IsInShapeshift())
-            SetPlayerOutline(_ssbTag);
+        // Also while shapeshifted: then it shows the disguise's tag, so a tag that appears or
+        // disappears can't give the Shapeshifter away.
+        SetPlayerOutline(_ssbTag);
 
         if (GameState.IsInGame && GameState.IsLobby && !GameState.IsFreePlay)
         {
@@ -346,12 +347,13 @@ internal class PlayerInfoDisplay : MonoBehaviour
         if (_player.Data == null)
             return;
 
-        string hashPuid = Utils.GetHashPuid(_player);
-        string friendCode = _player.Data.FriendCode;
-
         var color = _player.cosmetics.currentBodySprite.BodySprite.material.GetColor("_OutlineColor");
 
-        if (BetterDataManager.Files.BetterDataFile.TryGetCheatInfo(_player.Data, out var info))
+        // GreaterAmongUs: the player you SEE. A Shapeshifter disguised as Bob shows Bob's cheat tag and
+        // outline, not their own (their own outline on "Bob" told everyone who the Shapeshifter was).
+        var shownData = GetShownData();
+
+        if (BetterDataManager.Files.BetterDataFile.TryGetCheatInfo(shownData, out var info))
         {
             if (ssbTag.HasValue)
             {
@@ -363,6 +365,22 @@ internal class PlayerInfoDisplay : MonoBehaviour
         {
             _player.SetOutline(false, null);
         }
+    }
+
+    /// <summary>
+    /// The data of the player this one currently looks like (the disguise while shapeshifted).
+    /// </summary>
+    [HideFromIl2Cpp]
+    private NetworkedPlayerInfo GetShownData()
+    {
+        if (_player.IsInShapeshift() && _player.shapeshiftTargetPlayerId > -1)
+        {
+            var targetData = Utils.PlayerDataFromPlayerId((byte)_player.shapeshiftTargetPlayerId);
+            if (targetData != null)
+                return targetData;
+        }
+
+        return _player.Data;
     }
 
     /// <summary>

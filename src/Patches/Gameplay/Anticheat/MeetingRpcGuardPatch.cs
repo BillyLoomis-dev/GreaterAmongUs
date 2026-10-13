@@ -72,7 +72,7 @@ internal static class MeetingRpcGuardPatch
             // Unexpected layout (e.g. a future game update added fields): don't guess, let it through.
             if (reader.BytesRemaining != 4)
             {
-                BAUPlugin.Logger.Warning($"QueueOverruleVotes has {reader.BytesRemaining} bytes (expected 4) - not checked", "MeetingRpcGuard");
+                BAUPlugin.Logger.LogHidden($"QueueOverruleVotes has {reader.BytesRemaining} bytes (expected 4) - not checked", "MeetingRpcGuard");
                 return true;
             }
 

@@ -20,10 +20,9 @@ internal sealed class StartVanishHandler : RPCHandler
 
         if (sender.IsInVent())
         {
-            if (BetterNotificationManager.NotifyCheat(sender, GetFormatActionText()))
-            {
-                LogRpcInfo($"Phantom attempted to vanish while in vent");
-            }
+            // GreaterAmongUs: only logged. Vanishing right as you enter or leave a vent can arrive in
+            // either order, so this flagged real Phantoms (and showed who they were).
+            LogRpcInfo($"Phantom vanished while in vent (allowed, timing)");
         }
 
         return true;

@@ -13,7 +13,8 @@ internal sealed class DumpCommand : BaseCommand
 
     internal override bool CanRunCommand(out string reason)
     {
-        if (GameState.IsInGamePlay)
+        // The whole match, intro included (the log would show what happened).
+        if (GameState.IsInGamePlay || BAULogger.IsMatchRunning)
         {
             reason = "Only can run in lobby";
             return false;

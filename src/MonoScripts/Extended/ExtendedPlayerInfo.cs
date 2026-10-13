@@ -203,7 +203,15 @@ internal sealed class ExtendedAntiCheatInfo
     /// <summary>
     /// Gets or sets the last task ID.
     /// </summary>
-    internal uint LastTaskId { get; set; } = 999;
+    internal uint LastTaskId { get; set; } = NoTaskId;
+
+    /// <summary>No task completed yet.</summary>
+    internal const uint NoTaskId = 999;
+
+    /// <summary>
+    /// How many tasks in a row were finished less than the fast-task gap apart (GreaterAmongUs).
+    /// </summary>
+    internal int FastTaskStreak { get; set; }
 
     /// <summary>
     /// Gets or sets whether the player has set their name.

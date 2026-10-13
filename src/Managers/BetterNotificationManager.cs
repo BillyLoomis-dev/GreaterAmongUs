@@ -299,7 +299,8 @@ internal static class BetterNotificationManager
         // Always alert (sticky, stacked, deduplicated per player + reason).
         NotifySticky($"cheat:{player.Data.FriendCode}:{player.GetHashPuid()}:{reason}", text);
 
-        BAUPlugin.Logger.LogCheat($"{player.cosmetics.nameText.text} Info: {player.Data.PlayerName} - {player.Data.FriendCode} - {player.GetHashPuid()}");
+        // Real name only: the name shown above the player can be a shapeshift disguise or carry role text.
+        BAUPlugin.Logger.LogCheat($"Info: {realName} - {player.Data.FriendCode} - {player.GetHashPuid()}");
         BAUPlugin.Logger.LogCheat(Utils.RemoveHtmlText(rawText));
 
         if (GameState.IsHost && kickPlayer)

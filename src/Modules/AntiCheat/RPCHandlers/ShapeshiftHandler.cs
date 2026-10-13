@@ -28,11 +28,10 @@ internal sealed class ShapeshiftHandler : RPCHandler
         }
         else if (!flag && !GameState.IsMeeting && !GameState.IsExilling && !sender.IsInVent())
         {
-            if (BetterNotificationManager.NotifyCheat(sender, GetFormatActionText()))
-            {
-                LogRpcInfo($"Shapeshifter attempted to shapeshift without animation while not in vent");
-            }
-            return false;
+            // GreaterAmongUs: allowed and only logged. The host decides the animation, and the meeting /
+            // vent state we see can be a moment behind (meeting just ended, vent just left), so this
+            // flagged real Shapeshifters and showed who they were.
+            LogRpcInfo($"Shapeshift without animation while not in vent (allowed, timing)");
         }
 
         return true;

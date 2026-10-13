@@ -24,8 +24,7 @@ internal sealed class ReportDeadBodyHandler : RPCHandler
             return CancelAsHost;
         }
 
-        if (GameState.IsMeeting && MeetingHudPatch.timeOpen > 5f || GameState.IsHideNSeek || sender.IsInVent() || sender.shapeshifting
-            || sender.inMovingPlat || sender.onLadder || sender.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+        if (GameState.IsMeeting && MeetingHudPatch.timeOpen > 5f || GameState.IsHideNSeek)
         {
             if (BetterNotificationManager.NotifyCheat(sender, TranslationStrings.AntiCheat_InvalidActionRPC.Format(Enum.GetName((RpcCalls)CallId))))
             {
@@ -33,6 +32,17 @@ internal sealed class ReportDeadBodyHandler : RPCHandler
                 LogRpcInfo($"Report blocked: {issue}");
             }
 
+            return CancelAsHost;
+        }
+
+        // GreaterAmongUs: still canceled when you host, but not reported. What we see (in a vent,
+        // shapeshifting, on a ladder or platform) can be a moment behind the reporter, and a report
+        // here named an Impostor who had just left a vent or shapeshifted.
+        if (sender.IsInVent() || sender.shapeshifting || sender.inMovingPlat || sender.onLadder
+            || sender.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+        {
+            string issue = GetReportBlockedIssue(sender);
+            LogRpcInfo($"Report blocked (not reported, timing): {issue}");
             return CancelAsHost;
         }
 

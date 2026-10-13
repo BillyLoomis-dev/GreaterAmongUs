@@ -17,7 +17,8 @@ internal sealed class PlayersInfoCommand : BaseCommand
         {
             if (player == null || player.Data == null) continue;
 
-            var hexColor = Utils.Color32ToHex(Palette.PlayerColors[player.CurrentOutfit.ColorId]);
+            // Real color, not the current one: a Shapeshifter wears someone else's color.
+            var hexColor = Utils.Color32ToHex(Palette.PlayerColors[player.Data.DefaultOutfit.ColorId]);
             sb.Append($"<color={hexColor}><b>{player.Data.PlayerName}</color> Info:</b>\n");
             sb.Append($"<color=#c1c1c1>{player.Data.PlayerId}</color> - ");
             sb.Append($"<color=#c1c1c1>{Utils.GetHashStr($"{player.Data.Puid}")}</color> - ");

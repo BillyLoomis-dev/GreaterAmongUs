@@ -174,6 +174,7 @@ internal abstract class RPCHandler
 
     /// <summary>
     /// Logs RPC information for debugging and anti-cheat tracking.
+    /// Held back while a match is running (see <see cref="BAULogger.LogHidden"/>).
     /// </summary>
     /// <param name="info">Additional information about the RPC.</param>
     /// <param name="player">Optional player to log information for.</param>
@@ -181,7 +182,9 @@ internal abstract class RPCHandler
     {
         string Name = Enum.GetName((RpcCalls)CallId) ?? Enum.GetName((CustomRPC)CallId) ?? $"Unregistered({CallId})";
         Name = $"[{Enum.GetName(catchedHandlerFlag)}] > " + Name;
-        BAUPlugin.Logger.LogCheat($"{catchedSender?.ExtendedData()?.RealName ?? player.ExtendedData()?.RealName ?? string.Empty} {Name}: {info}");
+        // Hidden until the match ends: these lines name players and what they did (who tried to kill,
+        // protect, vent, shapeshift...). Real detections are already shown live by NotifyCheat.
+        BAUPlugin.Logger.LogHidden($"{catchedSender?.ExtendedData()?.RealName ?? player.ExtendedData()?.RealName ?? string.Empty} {Name}: {info}", "AntiCheat");
     }
 
     /// <summary>

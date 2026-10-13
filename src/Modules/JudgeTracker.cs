@@ -85,7 +85,7 @@ internal static class JudgeTracker
         if (!_pending.TryGetValue(judge, out var previous) || previous != target)
         {
             _pending[judge] = target;
-            BAUPlugin.Logger.LogPrivate($"{Name(judge)} (Judge) chose to overrule the vote on {Name(target)}", "EventLog");
+            BAUPlugin.Logger.LogHidden($"{Name(judge)} (Judge) chose to overrule the vote on {Name(target)}", "EventLog", showInConsole: false);
         }
 
         // VotingComplete already came in but the queue sync arrived after it: finish now.
@@ -132,7 +132,7 @@ internal static class JudgeTracker
         if (_byNonce.TryGetValue(overruleNonce, out var overrule))
         {
             AddVerdict(overrule.judge, overrule.target);
-            BAUPlugin.Logger.LogPrivate($"{Name(overrule.judge)} (Judge) judged {Name(overrule.target)} -> {ejected} was ejected", "EventLog");
+            BAUPlugin.Logger.LogHidden($"{Name(overrule.judge)} (Judge) judged {Name(overrule.target)} -> {ejected} was ejected", "EventLog", showInConsole: false);
             return;
         }
 
@@ -140,7 +140,7 @@ internal static class JudgeTracker
         // and FinalizeMeeting() falls back to the known Judge if it never does.
         _awaitingNonce = true;
         _awaitingNonceValue = overruleNonce;
-        BAUPlugin.Logger.LogPrivate($"A Judge overruled the vote -> {ejected} was ejected (target not synced yet)", "EventLog");
+        BAUPlugin.Logger.LogHidden($"A Judge overruled the vote -> {ejected} was ejected (target not synced yet)", "EventLog", showInConsole: false);
     }
 
     /// <summary>

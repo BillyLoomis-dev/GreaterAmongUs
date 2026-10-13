@@ -481,7 +481,9 @@ internal static class NetworkManager
             {
                 string who = player.ExtendedData()?.RealName ?? player.Data?.PlayerName ?? "?";
                 string rpcName = Enum.GetName((RpcCalls)callId) ?? Enum.GetName((CustomRPC)callId) ?? $"Unregistered({callId})";
-                BAUPlugin.Logger.LogCheat($"{who} - RPC canceled by Anti-Cheat: {rpcName} ({callId})");
+                // Hidden until the match ends: a canceled RPC is usually not cheating (two impostors
+                // killing the same player, a Guardian Angel protect sent to everyone...) but names who did it.
+                BAUPlugin.Logger.LogHidden($"{who} - RPC canceled by Anti-Cheat: {rpcName} ({callId})", "AntiCheat");
             }
             return false;
         }

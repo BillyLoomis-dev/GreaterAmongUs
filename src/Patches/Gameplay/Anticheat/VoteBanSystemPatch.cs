@@ -124,10 +124,19 @@ internal static class VoteBanSystemPatch
             maxVotes = votes.Length; // Total possible votes
         }
 
-        BAUPlugin.Logger.InGame(
+        string text =
             $"{src.Character?.GetPlayerNameAndColor() ?? src.PlayerName} " +
             $"voted to kick {client.Character?.GetPlayerNameAndColor() ?? client.PlayerName} " +
-            $"<#6F6F6F>(</color><#FFFFFF>{currentVotes}</color><#6F6F6F>/</color><#FFFFFF>{maxVotes}</color><#6F6F6F>)</color>"
-        );
+            $"<#6F6F6F>(</color><#FFFFFF>{currentVotes}</color><#6F6F6F>/</color><#FFFFFF>{maxVotes}</color><#6F6F6F>)</color>";
+
+        // During a match who voted to kick who can give things away (a dead player voting to kick
+        // their killer), so it is only logged once the match is over.
+        if (BAULogger.IsMatchRunning)
+        {
+            BAUPlugin.Logger.LogHidden(Utils.RemoveHtmlText(text), "VoteKick");
+            return;
+        }
+
+        BAUPlugin.Logger.InGame(text);
     }
 }

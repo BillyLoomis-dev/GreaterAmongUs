@@ -40,6 +40,22 @@ Everything BetterAmongUs 1.3.4 has, plus:
 - The first start after installing BepInEx loads the mod. BetterAmongUs crashed its own startup there (it wrote
   its console banner into a console it had just closed), so the first start was always vanilla.
 
+### No live game info in the console
+- **During a match the console and log only show real cheat detections** (name and reason, so you can still
+  kick or ban), known-cheater / ban-list warnings and errors.
+- Everything else that names a player is **kept in memory and written when the match ends**: vents, kills,
+  shapeshifts, Phantom vanish/appear, Guardian Angel protects, blocked double kills, sabotage/fix timing races,
+  vote kicks, ghost chat, Judge choices, cheat-client chat. It never touches the console or a file while the
+  match runs. If you leave before the end it is thrown away (the match may still be running for the others).
+  Chat and events stay encrypted as before (`/dump` in the lobby).
+- **Timing races no longer name anyone.** Shapeshift or Phantom appear without animation, vanishing in a vent,
+  a kill while vanished, a report right after leaving a vent / ladder / platform: these can happen to real
+  players because of lag, and the alert told everyone who the Impostor was. They are only logged after the match
+  now (a report from inside a vent is still canceled when you host). Tasks: it takes 3 or more finished in a row
+  less than 1.25 s apart to report (two arriving together is lag).
+- A Shapeshifter disguised as someone shows that person's cheat tag and outline, not their own.
+  `/players` shows real colors. `/dump` is blocked for the whole match. Cheat alerts log the real name only.
+
 ### Alerts
 - **Sticky cheat alerts.** Each detection stays on screen (up to 60 minutes) and stacks, newest on top.
   **CTRL+P** dismisses a cheat alert. The same player caught again for the same thing shows `(x2)`, `(x3)`...

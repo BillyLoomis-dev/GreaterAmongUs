@@ -22,6 +22,9 @@ internal static class GameSummaryPatch
         if (__instance == null)
             return;
 
+        // Backup: write the lines hidden during the match (normally already done when the game ended).
+        BAUPlugin.Logger.OnMatchEnd();
+
         // Log game end to console
         LogGameEnd();
 

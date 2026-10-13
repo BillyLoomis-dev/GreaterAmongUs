@@ -87,6 +87,25 @@ internal static class ClientPatch
         CustomLoadingBarManager.ToggleLoadingBar(false);
 
         BAUPlugin.Logger.Log($"Client has left game for: {Enum.GetName(reason)}", "AmongUsClientPatch");
+
+        // Lines hidden during the match: written if it was over, thrown away if we left early.
+        BAUPlugin.Logger.OnLeaveGame();
+    }
+
+    [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
+    [HarmonyPostfix]
+    private static void AmongUsClient_OnDisconnected_Postfix()
+    {
+        // Connection lost or left: same as leaving (hidden lines of an unfinished match are thrown away).
+        BAUPlugin.Logger.OnLeaveGame();
+    }
+
+    [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
+    [HarmonyPostfix]
+    private static void AmongUsClient_OnGameEnd_Postfix()
+    {
+        // The match is over: write everything that was hidden while it was running.
+        BAUPlugin.Logger.OnMatchEnd();
     }
 
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
@@ -140,6 +159,15 @@ internal static class ClientPatch
     [HarmonyPostfix]
     private static void AmongUsClient_CoStartGame_Postfix(AmongUsClient __instance)
     {
+        try
+        {
+            BetterAmongUs.Modules.AntiCheat.RPCHandlers.CompleteTaskHandler.ResetForNewMatch();
+        }
+        catch (Exception ex)
+        {
+            BAUPlugin.Logger.Error(ex);
+        }
+
         // Censor in-game chat
         ChatPatch.CensorPlayerChats();
 

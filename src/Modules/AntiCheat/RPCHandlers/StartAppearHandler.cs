@@ -1,6 +1,5 @@
 using BetterAmongUs.Attributes;
 using BetterAmongUs.Utilities;
-using BetterAmongUs.Managers;
 using Hazel;
 
 namespace BetterAmongUs.Modules.AntiCheat.RPCHandlers;
@@ -20,13 +19,10 @@ internal sealed class StartAppearHandler : RPCHandler
 
         if (!shouldAnimate && (!sender.IsInVent() && !GameState.IsMeeting && !GameState.IsExilling))
         {
-            if (BetterNotificationManager.NotifyCheat(sender, GetFormatActionText()))
-            {
-                LogRpcInfo($"Phantom attempted to appear without animation while not in vent");
-                sender.HandleServerAppear(true);
-            }
-
-            return false;
+            // GreaterAmongUs: allowed and only logged. The game makes Phantoms appear without animation
+            // when a meeting starts, and our meeting / vent state can be a moment behind, so this
+            // flagged real Phantoms (and showed who they were).
+            LogRpcInfo($"Phantom appeared without animation while not in vent (allowed, timing)");
         }
 
         return true;

@@ -20,6 +20,11 @@
  - **Fake Influencer messages** (pictures while nobody is an Influencer) are blocked.
  - Dead players see a dead player's real role (a dead Judge shows "Judge").
 
+ #### No live game info in the console
+ - During a match the console only shows real cheat detections (with the name, so you can kick or ban).
+ - Vents, kills, shapeshifts, protects, blocked double kills, vote kicks, ghost chat and Judge choices are written when the match ends.
+ - Timing races (lag) no longer give an Impostor away with a cheat alert.
+
  #### Anti-cheat
  - Sabotage cheats are reported with the player's name; accidental timing races are only blocked, not reported.
  - The same player caught again for the same thing counts up on one alert instead of adding new ones.

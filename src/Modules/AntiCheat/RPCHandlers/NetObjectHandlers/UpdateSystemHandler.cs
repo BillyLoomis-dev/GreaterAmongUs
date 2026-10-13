@@ -86,12 +86,13 @@ internal sealed class UpdateSystemHandler : RPCHandler
 
     /// <summary>
     /// GreaterAmongUs: cancel something that can happen by accident (two players pressing at
-    /// the same moment, lag). Logged with the player's name, but not reported as cheating.
+    /// the same moment, lag). Logged with the player's name once the match is over, not reported as cheating.
     /// </summary>
     private static bool Block(PlayerControl? sender, string what)
     {
         string who = sender != null ? (sender.ExtendedData()?.RealName ?? sender.Data?.PlayerName ?? "?") : "?";
-        BAUPlugin.Logger.LogCheat($"{who} - sabotage/fix canceled ({what})");
+        // Hidden until the match ends (it shows who sabotaged or fixed what).
+        BAUPlugin.Logger.LogHidden($"{who} - sabotage/fix canceled ({what})", "AntiCheat");
         return false;
     }
 

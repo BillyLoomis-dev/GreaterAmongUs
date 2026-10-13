@@ -93,7 +93,7 @@ Everything BetterAmongUs 1.3.4 has, plus:
    from that folder so only one is loaded.
 4. Start Among Us. The main menu shows `♻GAU♻ v1.5.0`.
 
-### Option 2 - everything in one zip (no BepInEx yet)
+### Option 2 - BetterAmongUs zip, then swap the DLL (no BepInEx yet)
 
 1. Close Among Us.
 2. Download the BetterAmongUs 1.3.4 zip for your platform from the
@@ -103,7 +103,26 @@ Everything BetterAmongUs 1.3.4 has, plus:
 4. Start Among Us. The first start takes longer (about a minute) while BepInEx sets itself up; the mod loads
    on that first start too.
 
-To uninstall, delete `BepInEx`, `dotnet`, `winhttp.dll` and `doorstop_config.ini` from the game folder.
+### Option 3 - drag and drop (BepInEx and GreaterAmongUs already inside)
+
+The easiest way if you have no mods yet: one zip with BepInEx and GreaterAmongUs already set up.
+
+1. Close Among Us.
+2. Download
+   [`GreaterAmongUs-BepInEx.zip`](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest/download/GreaterAmongUs-BepInEx.zip)
+   from the [latest release](https://github.com/BillyLoomis-dev/GreaterAmongUs/releases/latest).
+3. Open your Among Us folder (Steam: right-click Among Us > Manage > Browse local files).
+4. Open the zip, select **everything inside it** and drag it into the Among Us folder, next to `Among Us.exe`.
+   If Windows asks, replace the files.
+   - Check: `BepInEx`, `dotnet`, `winhttp.dll` and `doorstop_config.ini` are now next to `Among Us.exe`, and
+     `GreaterAmongUs.dll` is in `BepInEx\plugins\`. If they ended up inside an extra folder, move them up one
+     level, or BepInEx won't start.
+   - Coming from BetterAmongUs? Delete `BetterAmongUs.dll` from `BepInEx\plugins\` so only one is loaded.
+5. Start Among Us. The first start takes about a minute while BepInEx sets itself up; the main menu then shows
+   `♻GAU♻ v1.5.0`.
+
+To uninstall, delete `BepInEx`, `dotnet`, `winhttp.dll` and `doorstop_config.ini` from the game folder
+(and `.doorstop_version` / `changelog.txt` if they are there).
 
 ## Building from source
 
@@ -137,6 +156,7 @@ derivatives under GPL v3.0 (or later).
 - **D1GQ** and the BetterAmongUs contributors - the original mod
   ([upstream repository](https://github.com/D1GQ/BetterAmongUs))
 - **BillyLoomis-dev** - GreaterAmongUs
+- [BepInEx](https://github.com/BepInEx/BepInEx) (LGPL-2.1) - the mod loader, included in the Option 3 zip
 
 ## Disclaimer
 
